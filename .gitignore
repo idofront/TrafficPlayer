@@ -1,0 +1,5 @@
+*.pcap
+*.json
+build/
+bin/
+*.ignore
