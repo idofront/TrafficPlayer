@@ -2,6 +2,7 @@
 #include <ParseOptions.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
+#include <TrafficMaker/ScaledIntervalTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
@@ -37,7 +38,8 @@ int main(int argc, char *argv[])
         else if (options.Mode() == Mode::Interval)
         {
             spdlog::info("Mode: Interval");
-            throw std::runtime_error("Not implemented");
+            trafficMakerPtr =
+                std::make_shared<TrafficMaker::ScaledIntervalTrafficMaker>(pcapFile, options.IntervalFactor());
         }
         else if (options.Mode() == Mode::Duration)
         {

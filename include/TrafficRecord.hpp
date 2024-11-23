@@ -16,6 +16,14 @@ class TrafficRecord
             std::chrono::nanoseconds(static_cast<long long>(_PacketSize * 8 / _ExpextedThroughput * 1e3));
     }
 
+    TrafficRecord(std::vector<uint8_t> data, std::chrono::nanoseconds shouldSpendTimeSending)
+        : _Data(data), _ShouldSpendTimeSending(shouldSpendTimeSending)
+    {
+        _PacketSize = data.size();
+        _ExpextedThroughput = _PacketSize * 8 / (shouldSpendTimeSending.count() / 1e3);
+        _ShouldSpendTimeSending = shouldSpendTimeSending;
+    }
+
     const std::vector<uint8_t> &Data() const
     {
         return _Data;
