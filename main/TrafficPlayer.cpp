@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     std::thread consumer_thread(consumer);
 
     // Read pcap file
-    auto TrafficMaker = TrafficMaker::UniformTrafficMaker(pcapFile);
+    auto TrafficMaker = TrafficMaker::UniformTrafficMaker(pcapFile, 0.001);
     auto trafficRecords = TrafficMaker.Make();
 
     std::for_each(trafficRecords.begin(), trafficRecords.end(),

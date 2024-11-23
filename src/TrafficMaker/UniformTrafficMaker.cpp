@@ -3,7 +3,8 @@
 
 namespace TrafficMaker
 {
-UniformTrafficMaker::UniformTrafficMaker(const std::filesystem::path &path) : ITrafficMaker(path)
+UniformTrafficMaker::UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps)
+    : ITrafficMaker(path), _expectedThroughputMbps(expectedThroughputMbps)
 {
 }
 
@@ -15,11 +16,11 @@ std::vector<TrafficRecord> UniformTrafficMaker::Make()
 {
     auto pcapRecords = ReadPcapFile(Path());
     auto trafficRecords = std::vector<TrafficRecord>();
+    auto expectedThroughputMbps = _expectedThroughputMbps;
 
     std::transform(pcapRecords.begin(), pcapRecords.end(), std::back_inserter(trafficRecords),
-                   [](const PcapRecord &record) {
+                   [expectedThroughputMbps](const PcapRecord &record) {
                        auto data = record.Data();
-                       auto expectedThroughputMbps = 0.001;
                        return TrafficRecord(data, expectedThroughputMbps);
                    });
 

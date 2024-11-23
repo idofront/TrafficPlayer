@@ -8,9 +8,12 @@ namespace TrafficMaker
 class UniformTrafficMaker : public ITrafficMaker
 {
   public:
-    UniformTrafficMaker(const std::filesystem::path &path);
+    UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps);
     virtual ~UniformTrafficMaker();
     virtual std::vector<TrafficRecord> Make();
+
+  private:
+    double _expectedThroughputMbps;
 };
 } // namespace TrafficMaker
 
