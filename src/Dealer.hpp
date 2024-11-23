@@ -1,5 +1,5 @@
-#ifndef CONSUMER_HPP
-#define CONSUMER_HPP
+#ifndef DEALER_HPP
+#define DEALER_HPP
 
 #include <ThreadSafeQueue.hpp>
 #include <TrafficPlayer.hpp>
@@ -15,11 +15,11 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 
-class Consumer
+class Dealer
 {
   public:
-    Consumer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name);
-    virtual ~Consumer();
+    Dealer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name);
+    virtual ~Dealer();
 
     void operator()();
 

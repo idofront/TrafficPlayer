@@ -1,4 +1,4 @@
-#include <Consumer.hpp>
+#include <Dealer.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
 #include <TrafficPlayer.hpp>
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     auto queuePtr = std::make_shared<TrafficPlayer::ThreadSafeQueue<TrafficRecord>>();
 
     auto producer = Producer(queuePtr);
-    auto consumer = Consumer(queuePtr, interface);
+    auto consumer = Dealer(queuePtr, interface);
 
     std::thread consumer_thread(consumer);
 

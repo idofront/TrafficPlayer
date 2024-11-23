@@ -1,21 +1,21 @@
-#include <Consumer.hpp>
+#include <Dealer.hpp>
 
-Consumer::Consumer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
+Dealer::Dealer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
     : queue(queue), device_name(device_name)
 {
     PrepareSocket();
 }
 
-Consumer::~Consumer()
+Dealer::~Dealer()
 {
     close(sockfd);
 }
 
-void Consumer::operator()()
+void Dealer::operator()()
 {
     while (true)
     {
-        std::chrono::milliseconds timeout(1000);
+        auto timeout = std::chrono::milliseconds(1000);
         auto result = queue->dequeue(timeout);
 
         if (result.has_value())
@@ -38,7 +38,7 @@ void Consumer::operator()()
     }
 }
 
-void Consumer::Send(const std::vector<uint8_t> &data)
+void Dealer::Send(const std::vector<uint8_t> &data)
 {
     // データ送信
     if (sendto(sockfd, data.data(), data.size(), 0, (struct sockaddr *)&device, sizeof(device)) < 0)
@@ -49,7 +49,7 @@ void Consumer::Send(const std::vector<uint8_t> &data)
     }
 }
 
-void Consumer::PrepareSocket()
+void Dealer::PrepareSocket()
 {
     // Create socket
     sockfd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
