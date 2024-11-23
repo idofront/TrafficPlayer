@@ -11,14 +11,14 @@ void Producer::Produce(const TrafficRecord &trafficRecord)
 
     if (!queue->empty())
     {
-        SPDLOG_WARN("Queue is not empty. Probably consumer is not consuming fast enough.");
+        spdlog::warn("Queue is not empty. Probably consumer is not consuming fast enough.");
     }
 
     queue->enqueue(trafficRecord);
-    SPDLOG_INFO("Produced: {}", TrafficPlayer::HexString(trafficRecord.Data()));
+    spdlog::trace("Produced: {}", TrafficPlayer::HexString(trafficRecord.Data()));
 
     auto shouldWaitMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(shouldWait);
-    SPDLOG_INFO("Should wait for {} milliseconds", shouldWaitMilliseconds.count());
+    spdlog::debug("Should wait for {} milliseconds", shouldWaitMilliseconds.count());
     std::this_thread::sleep_until(shouldWaitUntil);
 }
 

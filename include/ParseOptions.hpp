@@ -1,68 +1,97 @@
 #ifndef PARSE_OPTIONS_HPP
 #define PARSE_OPTIONS_HPP
 
-#include <boost/program_options.hpp>
+#include <CLI/CLI.hpp>
 #include <filesystem>
 #include <iostream>
 #include <spdlog/spdlog.h>
+
+enum Mode
+{
+    Throughput,
+    Interval,
+    Duration
+};
 
 class ParseOptions
 {
   public:
     ParseOptions(int argc, char *argv[])
     {
-        auto desc = boost::program_options::options_description("Allowed options");
+        CLI::App app{"PCAP Replay Tool"};
 
+        // General options
+        std::string pcap_file;
+        app.add_option("--pcap,-p", pcap_file, "Path to the pcap file")->required();
+
+        std::string network_interface;
+        app.add_option("--interface,-i", network_interface, "Network interface to send packets")->required();
+
+        std::string log_level = "info";
+        app.add_option("--log-level", log_level, "Log level (trace, debug, info, warn, error, critical)");
+
+        // Subcommands for different modes
+        auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
+        double throughput_mbps;
+        throughput->add_option("Mbps", throughput_mbps, "Throughput value in Mbps")->required();
+
+        auto interval = app.add_subcommand("interval", "Interval mode: Adjust packet interval by a factor");
+        double interval_factor;
+        interval->add_option("factor", interval_factor, "Interval factor multiplier")->required();
+
+        auto duration = app.add_subcommand("duration", "Duration mode: Replay all packets within a specified duration");
+        double duration_time;
+        duration->add_option("time", duration_time, "Duration time in seconds")->required();
+
+        // Parse command line
         try
         {
-            desc.add_options()("help,h", "produce help message")(
-                "pcap,p", boost::program_options::value<std::filesystem::path>(), "A pcap file for replaying.")(
-                "interface,i", boost::program_options::value<std::string>(), "An interface for replaying.");
-
-            boost::program_options::variables_map vm;
-            boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
-            boost::program_options::notify(vm);
-
-            if (vm.count("help"))
-            {
-                throw std::runtime_error("A show option is specified.");
-            }
-
-            if (vm.count("pcap"))
-            {
-                auto value = vm["pcap"].as<std::filesystem::path>();
-                _pcapFilePath = vm["pcap"].as<std::filesystem::path>();
-            }
-            else
-            {
-                throw std::runtime_error("A pcap file must be speficied");
-            }
-
-            if (vm.count("interface"))
-            {
-                auto value = vm["interface"].as<std::string>();
-                _interfaceName = value;
-            }
-            else
-            {
-                throw std::runtime_error("An interface must be specified.");
-            }
+            app.parse(argc, argv);
         }
-        catch (const std::runtime_error &e)
+        catch (const CLI::ParseError &e)
         {
-            desc.print(std::cout);
-            throw;
+            app.exit(e);
         }
-        catch (const std::exception &e)
+
+        // If help flag was specified, display help
+        if (app.get_help_ptr() && app.get_help_ptr()->count())
         {
-            SPDLOG_ERROR("Error: {}", e.what());
-            throw std::runtime_error("Failed to parse options");
+            std::cout << app.help() << "\n";
+            throw std::runtime_error("Help requested");
         }
-        catch (...)
+
+        // Handle subcommands
+        if (throughput->parsed())
         {
-            SPDLOG_ERROR("Unknown error!");
-            throw std::runtime_error("Failed to parse options");
+            spdlog::info("Throughput: {} Mbps", throughput_mbps);
+            _mode = ::Mode::Throughput;
+            _throughputMbps = throughput_mbps;
+
+            if (throughput_mbps <= 0)
+            {
+                throw std::runtime_error("Throughput must be greater than 0");
+            }
         }
+        else if (interval->parsed())
+        {
+            spdlog::info("Interval: factor {}", interval_factor);
+            _mode = ::Mode::Interval;
+            _intervalFactor = interval_factor;
+        }
+        else if (duration->parsed())
+        {
+            spdlog::info("Duration: {} seconds", duration_time);
+            _mode = ::Mode::Duration;
+            _durationTime = duration_time;
+        }
+        else
+        {
+            throw std::runtime_error("No mode specified");
+        }
+
+        _interfaceName = network_interface;
+        _pcapFilePath = pcap_file;
+        _logLevel = spdlog::level::from_str(log_level);
     }
 
     const std::string InterfaceName() const
@@ -75,9 +104,39 @@ class ParseOptions
         return _pcapFilePath;
     }
 
+    const ::Mode Mode() const
+    {
+        return _mode;
+    }
+
+    const double ThroughputMbps() const
+    {
+        return _throughputMbps;
+    }
+
+    const double IntervalFactor() const
+    {
+        return _intervalFactor;
+    }
+
+    const double DurationTime() const
+    {
+        return _durationTime;
+    }
+
+    const spdlog::level::level_enum LogLevel() const
+    {
+        return _logLevel;
+    }
+
   private:
+    ::Mode _mode;
     std::string _interfaceName;
     std::filesystem::path _pcapFilePath;
+    double _throughputMbps;
+    double _intervalFactor;
+    double _durationTime;
+    spdlog::level::level_enum _logLevel;
 };
 
 #endif

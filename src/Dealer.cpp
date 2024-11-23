@@ -21,19 +21,19 @@ void Dealer::operator()()
         if (result.has_value())
         {
             auto str = TrafficPlayer::HexString(result.value().Data());
-            SPDLOG_INFO("Deal: {}", str);
+            spdlog::trace("Deal: {}", str);
             try
             {
                 Send(result.value().Data());
             }
             catch (const std::exception &e)
             {
-                SPDLOG_ERROR(e.what());
+                spdlog::error(e.what());
             }
         }
         else
         {
-            SPDLOG_INFO("Timeout: No value to consume.");
+            spdlog::debug("Timeout: No value to consume.");
         }
     }
 }
@@ -57,7 +57,7 @@ void Dealer::PrepareSocket()
     {
         throw std::runtime_error("Failed to create socket");
     }
-    SPDLOG_INFO("Socket created");
+    spdlog::debug("Socket created");
 
     // Get interface index
     memset(&if_idx, 0, sizeof(struct ifreq));
