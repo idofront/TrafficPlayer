@@ -21,6 +21,7 @@ void Consumer::operator()()
         if (result.has_value())
         {
             auto str = TrafficPlayer::HexString(result.value().Data());
+            SPDLOG_INFO("Consumed: {}", str);
             try
             {
                 Send(result.value().Data());
@@ -29,7 +30,6 @@ void Consumer::operator()()
             {
                 SPDLOG_ERROR(e.what());
             }
-            SPDLOG_INFO("Consumed: {}", str);
         }
         else
         {

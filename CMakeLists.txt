@@ -31,6 +31,9 @@ foreach(plugin_dir ${plugin_dirs})
   endif()
 endforeach()
 
+# boost の設定
+find_package(Boost REQUIRED COMPONENTS program_options)
+
 # fmt の設定
 find_package(fmt REQUIRED)
 include_directories(${fmt_INCLUDE_DIRS})
@@ -71,7 +74,7 @@ foreach(MAIN_SOURCE ${MAIN_SOURCES})
   get_filename_component(MAIN_NAME ${MAIN_SOURCE} NAME_WE)
   add_executable(${MAIN_NAME} ${MAIN_SOURCE} $<TARGET_OBJECTS:Builder>)
   target_include_directories(${MAIN_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src ${fmt_INCLUDE_DIRS})
-  target_link_libraries(${MAIN_NAME} ${subproject_names} fmt::fmt ${PCAP_LIBRARY} ${Poco_LIBRARIES})
+  target_link_libraries(${MAIN_NAME} ${subproject_names} fmt::fmt ${PCAP_LIBRARY} ${Poco_LIBRARIES} ${Boost_LIBRARIES})
 endforeach()
 
 # テストディレクトリの cpp ファイルを取得
