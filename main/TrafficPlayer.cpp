@@ -1,6 +1,7 @@
 #include <Dealer.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
+#include <TrafficMaker/UniformTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <boost/format.hpp>
@@ -12,27 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-std::vector<std::vector<uint8_t>> ReadPcapFile(const std::filesystem::path &path)
-{
-    std::vector<std::vector<uint8_t>> packets;
-
-    auto pcap = pcap_open_offline(path.c_str(), NULL);
-    if (pcap == NULL)
-    {
-        throw std::runtime_error("Failed to open pcap file");
-    }
-
-    struct pcap_pkthdr header;
-    const u_char *packet;
-    while ((packet = pcap_next(pcap, &header)) != NULL)
-    {
-        std::vector<uint8_t> data(packet, packet + header.len);
-        packets.push_back(data);
-    }
-
-    return packets;
-}
 
 class ParseOptions
 {
@@ -59,7 +39,6 @@ class ParseOptions
             if (vm.count("pcap"))
             {
                 auto value = vm["pcap"].as<std::filesystem::path>();
-                SPDLOG_INFO("pcap: {}", value.string());
                 _pcapFilePath = vm["pcap"].as<std::filesystem::path>();
             }
             else
@@ -70,7 +49,6 @@ class ParseOptions
             if (vm.count("interface"))
             {
                 auto value = vm["interface"].as<std::string>();
-                SPDLOG_INFO("interface: {}", value);
                 _interfaceName = value;
             }
             else
@@ -125,13 +103,11 @@ int main(int argc, char *argv[])
     std::thread consumer_thread(consumer);
 
     // Read pcap file
-    auto packets = ReadPcapFile(pcapFile);
-    auto expectedThroughputMbps = 0.001;
+    auto TrafficMaker = TrafficMaker::UniformTrafficMaker(pcapFile);
+    auto trafficRecords = TrafficMaker.Make();
 
-    for (auto &packet : packets)
-    {
-        producer.Produce(packet, expectedThroughputMbps);
-    }
+    std::for_each(trafficRecords.begin(), trafficRecords.end(),
+                  [&producer](const TrafficRecord &trafficRecord) { producer.Produce(trafficRecord); });
 
     while (!queuePtr->empty())
     {

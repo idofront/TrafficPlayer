@@ -13,7 +13,7 @@ class Producer
   public:
     Producer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue);
 
-    void Produce(const std::vector<uint8_t> &data, double expectedThroughput);
+    void Produce(const TrafficRecord &trafficRecord);
 
     void operator()();
 

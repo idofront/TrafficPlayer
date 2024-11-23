@@ -21,7 +21,7 @@ void Dealer::operator()()
         if (result.has_value())
         {
             auto str = TrafficPlayer::HexString(result.value().Data());
-            SPDLOG_INFO("Consumed: {}", str);
+            SPDLOG_INFO("Deal: {}", str);
             try
             {
                 Send(result.value().Data());
@@ -61,7 +61,6 @@ void Dealer::PrepareSocket()
 
     // Get interface index
     memset(&if_idx, 0, sizeof(struct ifreq));
-    SPDLOG_INFO("{} ({})", device_name, device_name.size());
     strncpy(if_idx.ifr_name, device_name.c_str(), IFNAMSIZ - 1);
     auto ioctl_result = ioctl(sockfd, SIOCGIFINDEX, &if_idx);
     if (ioctl_result < 0)

@@ -4,10 +4,8 @@ Producer::Producer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>
 {
 }
 
-void Producer::Produce(const std::vector<uint8_t> &data, double expectedThroughput)
+void Producer::Produce(const TrafficRecord &trafficRecord)
 {
-    auto trafficRecord = TrafficRecord(data, expectedThroughput);
-
     auto shouldWait = trafficRecord.ShouldSpendTimeSending();
     auto shouldWaitUntil = std::chrono::system_clock::now() + shouldWait;
 
