@@ -1,4 +1,4 @@
-#include <TrafficMaker/UniformTrafficMaker.hpp>
+#include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <iostream>
 
 namespace TrafficMaker

@@ -2,7 +2,7 @@
 #include <ParseOptions.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
-#include <TrafficMaker/UniformTrafficMaker.hpp>
+#include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <boost/format.hpp>
