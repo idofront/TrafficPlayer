@@ -13,29 +13,9 @@ class Producer
   public:
     Producer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue);
 
-    void Produce(const std::vector<uint8_t> &data, double expectedThroughput)
-    {
-        auto trafficRecord = TrafficRecord(data, expectedThroughput);
+    void Produce(const std::vector<uint8_t> &data, double expectedThroughput);
 
-        auto shouldWait = trafficRecord.ShouldSpendTimeSending();
-        auto shouldWaitUntil = std::chrono::system_clock::now() + shouldWait;
-
-        if (!queue->empty())
-        {
-            SPDLOG_WARN("Queue is not empty. Probably consumer is not consuming fast enough.");
-        }
-
-        queue->enqueue(trafficRecord);
-        SPDLOG_INFO("Produced: {}", TrafficPlayer::HexString(trafficRecord.Data()));
-
-        auto shouldWaitMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(shouldWait);
-        SPDLOG_INFO("Should wait for {} milliseconds", shouldWaitMilliseconds.count());
-        std::this_thread::sleep_until(shouldWaitUntil);
-    }
-
-    void operator()()
-    {
-    }
+    void operator()();
 
   private:
     std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue;
