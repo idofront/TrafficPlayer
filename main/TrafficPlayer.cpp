@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         }
         else if (options.Mode() == Mode::Duration)
         {
-            spdlog::info("Mode: Duration");
+            spdlog::info("Mode: Custom duration");
             throw std::runtime_error("Not implemented");
         }
         else

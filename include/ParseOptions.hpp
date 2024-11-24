@@ -39,7 +39,8 @@ class ParseOptions
         double speedScaleFactor;
         speedScale->add_option("factor", speedScaleFactor, "Speed scale factor multiplier")->required();
 
-        auto duration = app.add_subcommand("duration", "Duration mode: Replay all packets within a specified duration");
+        auto duration =
+            app.add_subcommand("duration", "Custom duration mode: Replay all packets within a specified duration");
         double duration_time;
         duration->add_option("time", duration_time, "Duration time in seconds")->required();
 
