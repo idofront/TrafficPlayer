@@ -2,6 +2,7 @@
 #include <ParseOptions.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
+#include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
@@ -43,7 +44,8 @@ int main(int argc, char *argv[])
         else if (options.Mode() == Mode::Duration)
         {
             spdlog::info("Mode: Custom duration");
-            throw std::runtime_error("Not implemented");
+            trafficMakerPtr = std::make_shared<TrafficMaker::CustomDurationReplayTrafficMaker>(
+                pcapFile, std::chrono::milliseconds(static_cast<long long>(options.DurationTime() * 1e3)));
         }
         else
         {
