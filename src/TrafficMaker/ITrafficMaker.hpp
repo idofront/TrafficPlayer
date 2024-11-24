@@ -41,6 +41,8 @@ class ITrafficMaker
             pcapRecords.push_back(record);
         }
 
+        pcap_close(pcap);
+
         return pcapRecords;
     }
 
