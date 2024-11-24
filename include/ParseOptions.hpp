@@ -33,16 +33,16 @@ class ParseOptions
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
         double throughput_mbps;
-        throughput->add_option("Mbps", throughput_mbps, "Throughput value in Mbps")->required();
+        throughput->add_option("Mbps", throughput_mbps, "Throughput value in Mbps")->default_val(0);
 
         auto speedScale = app.add_subcommand("scale", "Speed scale mode: Adjust replay speed by a factor");
         double speedScaleFactor;
-        speedScale->add_option("factor", speedScaleFactor, "Speed scale factor multiplier")->required();
+        speedScale->add_option("factor", speedScaleFactor, "Speed scale factor multiplier")->default_val(1);
 
         auto duration =
             app.add_subcommand("duration", "Custom duration mode: Replay all packets within a specified duration");
         double duration_time;
-        duration->add_option("time", duration_time, "Duration time in seconds")->required();
+        duration->add_option("time", duration_time, "Duration time in seconds")->default_val(0);
 
         // Parse command line
         try
