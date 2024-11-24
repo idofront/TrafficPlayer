@@ -1,4 +1,4 @@
-#include <TransmissionTimingAdjuster.hpp>
+#include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 
 TransmissionTimingAdjuster::TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue)
     : queue(queue)

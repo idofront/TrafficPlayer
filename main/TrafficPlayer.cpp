@@ -2,12 +2,12 @@
 #include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
 #include <ThreadSafeQueue.hpp>
+#include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
-#include <TransmissionTimingAdjuster.hpp>
 #include <boost/format.hpp>
 #include <filesystem>
 #include <iostream>
