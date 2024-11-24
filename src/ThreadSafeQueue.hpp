@@ -7,8 +7,6 @@
 #include <optional>
 #include <queue>
 
-namespace TrafficPlayer
-{
 template <typename T> class ThreadSafeQueue
 {
   public:
@@ -57,6 +55,5 @@ template <typename T> class ThreadSafeQueue
     mutable std::mutex mtx;
     std::condition_variable cv;
 };
-} // namespace TrafficPlayer
 
 #endif

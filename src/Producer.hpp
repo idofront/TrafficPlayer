@@ -11,14 +11,14 @@
 class Producer
 {
   public:
-    Producer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue);
+    Producer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue);
 
     void Produce(const TrafficRecord &trafficRecord);
 
     void operator()();
 
   private:
-    std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue;
+    std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue;
 };
 
 #endif

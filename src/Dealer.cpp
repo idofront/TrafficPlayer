@@ -1,8 +1,8 @@
 #include <Dealer.hpp>
 #include <numeric>
 
-Dealer::Dealer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
-    : queue(queue), device_name(device_name), ReportsPtr(std::make_shared<TrafficPlayer::ThreadSafeQueue<DealReport>>())
+Dealer::Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
+    : queue(queue), device_name(device_name), ReportsPtr(std::make_shared<ThreadSafeQueue<DealReport>>())
 {
     PrepareSocket();
 }

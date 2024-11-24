@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         auto pcapFile = options.PcapFilePath();
         auto reportInterval = options.ReportIntervalUsec();
 
-        auto queuePtr = std::make_shared<TrafficPlayer::ThreadSafeQueue<TrafficRecord>>();
+        auto queuePtr = std::make_shared<ThreadSafeQueue<TrafficRecord>>();
 
         auto trafficMakerPtr = std::shared_ptr<TrafficMaker::ITrafficMaker>(nullptr);
         if (options.Mode() == Mode::Throughput)

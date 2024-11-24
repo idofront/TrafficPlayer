@@ -19,14 +19,14 @@
 class Dealer
 {
   public:
-    Dealer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name);
+    Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name);
     virtual ~Dealer();
 
     void operator()();
-    std::shared_ptr<TrafficPlayer::ThreadSafeQueue<DealReport>> ReportsPtr;
+    std::shared_ptr<ThreadSafeQueue<DealReport>> ReportsPtr;
 
   private:
-    std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue;
+    std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue;
 
     int sockfd;
     struct ifreq if_idx;
