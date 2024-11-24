@@ -34,7 +34,7 @@ class ParseOptions
         app.add_option("--report-interval", reportIntervalSec, "Interval to show reports in seconds")->default_val(1.0);
 
         app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat")
-            ->default_val(0);
+            ->default_val(1);
 
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
