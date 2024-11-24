@@ -32,7 +32,7 @@ foreach(plugin_dir ${plugin_dirs})
 endforeach()
 
 # boost の設定
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost REQUIRED)
 
 # fmt の設定
 find_package(fmt REQUIRED)
