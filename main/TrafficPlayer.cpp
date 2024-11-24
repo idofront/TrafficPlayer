@@ -61,11 +61,32 @@ int main(int argc, char *argv[])
         auto dealerThread = std::thread(dealer);
         auto dealReporterThread = std::thread(dealReporter);
 
+        auto repeatCount = options.RepeatCount();
+        uint64_t repeat = 0;
+
         // Read pcap file
         auto trafficRecords = trafficMakerPtr->Make();
+        while (++repeat)
+        {
+            if (repeatCount)
+            {
+                if (repeatCount < repeat)
+                {
+                    break;
+                }
+                if (repeatCount > 1)
+                {
+                    spdlog::info("Cycle: {}/{}", repeat, repeatCount);
+                }
+            }
+            else
+            {
+                spdlog::info("Cycle: {}", repeat);
+            }
 
-        std::for_each(trafficRecords.begin(), trafficRecords.end(),
-                      [&producer](const TrafficRecord &trafficRecord) { producer.Produce(trafficRecord); });
+            std::for_each(trafficRecords.begin(), trafficRecords.end(),
+                          [&producer](const TrafficRecord &trafficRecord) { producer.Produce(trafficRecord); });
+        }
 
         do
         {

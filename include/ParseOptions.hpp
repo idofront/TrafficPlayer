@@ -33,6 +33,9 @@ class ParseOptions
         auto reportIntervalSec = (double)0.0;
         app.add_option("--report-interval", reportIntervalSec, "Interval to show reports in seconds")->default_val(1.0);
 
+        app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat")
+            ->default_val(1);
+
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
         double throughput_mbps;
@@ -68,8 +71,8 @@ class ParseOptions
         if (throughput->parsed())
         {
             spdlog::info("Throughput: {} Mbps", throughput_mbps);
-            _mode = ::Mode::Throughput;
-            _throughputMbps = throughput_mbps;
+            _Mode = ::Mode::Throughput;
+            _ThroughputMbps = throughput_mbps;
 
             if (throughput_mbps <= 0)
             {
@@ -79,75 +82,90 @@ class ParseOptions
         else if (speedScale->parsed())
         {
             spdlog::info("SpeedScale: factor {}", speedScaleFactor);
-            _mode = ::Mode::SpeedScale;
+            _Mode = ::Mode::SpeedScale;
             _SpeedScaleFactor = speedScaleFactor;
         }
         else if (duration->parsed())
         {
             spdlog::info("Duration: {} seconds", duration_time);
-            _mode = ::Mode::Duration;
-            _durationTime = duration_time;
+            _Mode = ::Mode::Duration;
+            _DurationTime = duration_time;
         }
         else
         {
             throw std::runtime_error("No mode specified");
         }
 
-        _interfaceName = network_interface;
-        _pcapFilePath = pcap_file;
-        _logLevel = spdlog::level::from_str(log_level);
-        _reportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
+        _InterfaceName = network_interface;
+        _PcapFilePath = pcap_file;
+        _LogLevel = spdlog::level::from_str(log_level);
+        _ReportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
     }
 
+    /// @brief Network interface name
     const std::string InterfaceName() const
     {
-        return _interfaceName;
+        return _InterfaceName;
     }
 
+    /// @brief Pcap file path
     const std::filesystem::path PcapFilePath() const
     {
-        return _pcapFilePath;
+        return _PcapFilePath;
     }
 
+    /// @brief Mode
     const ::Mode Mode() const
     {
-        return _mode;
+        return _Mode;
     }
 
+    /// @brief Throughput in Mbps
     const double ThroughputMbps() const
     {
-        return _throughputMbps;
+        return _ThroughputMbps;
     }
 
+    /// @brief Speed scale factor
     const double SpeedScaleFactor() const
     {
         return _SpeedScaleFactor;
     }
 
+    /// @brief Duration time in seconds
     const double DurationTime() const
     {
-        return _durationTime;
+        return _DurationTime;
     }
 
+    /// @brief Log level
     const spdlog::level::level_enum LogLevel() const
     {
-        return _logLevel;
+        return _LogLevel;
     }
 
+    /// @brief Interval to show reports in microseconds
     const std::chrono::milliseconds ReportIntervalUsec() const
     {
-        return _reportIntervalUsec;
+        return _ReportIntervalUsec;
+    }
+
+    /// @brief Number of times to repeat the traffic
+    const uint64_t RepeatCount() const
+    {
+        return _RepeatCount;
     }
 
   private:
-    ::Mode _mode;
-    std::string _interfaceName;
-    std::filesystem::path _pcapFilePath;
-    double _throughputMbps;
+    ::Mode _Mode;
+    std::string _InterfaceName;
+    std::filesystem::path _PcapFilePath;
+    double _ThroughputMbps;
     double _SpeedScaleFactor;
-    double _durationTime;
-    spdlog::level::level_enum _logLevel;
-    std::chrono::milliseconds _reportIntervalUsec;
+    double _DurationTime;
+    spdlog::level::level_enum _LogLevel;
+    std::chrono::milliseconds _ReportIntervalUsec;
+    uint64_t _RepeatCount;
 };
 
 #endif
