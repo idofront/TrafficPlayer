@@ -1,13 +1,13 @@
-#include <Dealer.hpp>
 #include <Dealer/DealReporter.hpp>
+#include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
-#include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
+#include <TransmissionTimingAdjuster.hpp>
 #include <boost/format.hpp>
 #include <filesystem>
 #include <iostream>
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Unknown mode");
         }
 
-        auto producer = Producer(queuePtr);
+        auto producer = TransmissionTimingAdjuster(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
         auto dealReporter = DealReporter(dealer, reportInterval);
 

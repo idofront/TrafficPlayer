@@ -1,4 +1,4 @@
-#include <Dealer.hpp>
+#include <Dealer/Dealer.hpp>
 #include <numeric>
 
 Dealer::Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)

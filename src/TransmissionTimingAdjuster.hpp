@@ -8,10 +8,10 @@
 #include <spdlog/spdlog.h>
 #include <vector>
 
-class Producer
+class TransmissionTimingAdjuster
 {
   public:
-    Producer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue);
+    TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue);
 
     void Produce(const TrafficRecord &trafficRecord);
 

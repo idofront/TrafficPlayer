@@ -1,10 +1,11 @@
-#include <Producer.hpp>
+#include <TransmissionTimingAdjuster.hpp>
 
-Producer::Producer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue) : queue(queue)
+TransmissionTimingAdjuster::TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue)
+    : queue(queue)
 {
 }
 
-void Producer::Produce(const TrafficRecord &trafficRecord)
+void TransmissionTimingAdjuster::Produce(const TrafficRecord &trafficRecord)
 {
     auto shouldWait = trafficRecord.ShouldSpendTimeSending();
     auto shouldWaitUntil = std::chrono::system_clock::now() + shouldWait;
@@ -22,6 +23,6 @@ void Producer::Produce(const TrafficRecord &trafficRecord)
     std::this_thread::sleep_until(shouldWaitUntil);
 }
 
-void Producer::operator()()
+void TransmissionTimingAdjuster::operator()()
 {
 }

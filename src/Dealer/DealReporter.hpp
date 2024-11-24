@@ -1,7 +1,7 @@
 #ifndef DEALER__DEAL_REPORTER_HPP
 #define DEALER__DEAL_REPORTER_HPP
 
-#include <Dealer.hpp>
+#include <Dealer/Dealer.hpp>
 #include <ThreadSafeQueue.hpp>
 #include <chrono>
 #include <memory>
