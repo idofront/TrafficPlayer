@@ -33,6 +33,9 @@ class ParseOptions
         auto reportIntervalSec = (double)0.0;
         app.add_option("--report-interval", reportIntervalSec, "Interval to show reports in seconds")->default_val(1.0);
 
+        app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat")
+            ->default_val(0);
+
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
         double throughput_mbps;
@@ -99,44 +102,58 @@ class ParseOptions
         _ReportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
     }
 
+    /// @brief Network interface name
     const std::string InterfaceName() const
     {
         return _InterfaceName;
     }
 
+    /// @brief Pcap file path
     const std::filesystem::path PcapFilePath() const
     {
         return _PcapFilePath;
     }
 
+    /// @brief Mode
     const ::Mode Mode() const
     {
         return _Mode;
     }
 
+    /// @brief Throughput in Mbps
     const double ThroughputMbps() const
     {
         return _ThroughputMbps;
     }
 
+    /// @brief Speed scale factor
     const double SpeedScaleFactor() const
     {
         return _SpeedScaleFactor;
     }
 
+    /// @brief Duration time in seconds
     const double DurationTime() const
     {
         return _DurationTime;
     }
 
+    /// @brief Log level
     const spdlog::level::level_enum LogLevel() const
     {
         return _LogLevel;
     }
 
+    /// @brief Interval to show reports in microseconds
     const std::chrono::milliseconds ReportIntervalUsec() const
     {
         return _ReportIntervalUsec;
+    }
+
+    /// @brief Number of times to repeat the traffic
+    const uint64_t RepeatCount() const
+    {
+        return _RepeatCount;
     }
 
   private:
@@ -148,6 +165,7 @@ class ParseOptions
     double _DurationTime;
     spdlog::level::level_enum _LogLevel;
     std::chrono::milliseconds _ReportIntervalUsec;
+    uint64_t _RepeatCount;
 };
 
 #endif
