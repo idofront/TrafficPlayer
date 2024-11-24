@@ -50,10 +50,6 @@ if(NOT PCAP_INCLUDE_DIR OR NOT PCAP_LIBRARY)
   message(FATAL_ERROR "libpcap not found. Please install libpcap.")
 endif()
 
-# libpoco の設定
-find_package(Poco REQUIRED COMPONENTS Foundation Util Net)
-include_directories(${Poco_INCLUDE_DIRS})
-
 # include ディレクトリを追加
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/submodules)
@@ -74,7 +70,7 @@ foreach(MAIN_SOURCE ${MAIN_SOURCES})
   get_filename_component(MAIN_NAME ${MAIN_SOURCE} NAME_WE)
   add_executable(${MAIN_NAME} ${MAIN_SOURCE} $<TARGET_OBJECTS:Builder>)
   target_include_directories(${MAIN_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src ${fmt_INCLUDE_DIRS})
-  target_link_libraries(${MAIN_NAME} ${subproject_names} fmt::fmt ${PCAP_LIBRARY} ${Poco_LIBRARIES} ${Boost_LIBRARIES})
+  target_link_libraries(${MAIN_NAME} ${subproject_names} fmt::fmt ${PCAP_LIBRARY} ${Boost_LIBRARIES})
 endforeach()
 
 # テストディレクトリの cpp ファイルを取得
@@ -85,7 +81,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
   get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
   add_executable(${TEST_NAME} ${TEST_SOURCE} $<TARGET_OBJECTS:Builder>)
   target_include_directories(${TEST_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src ${fmt_INCLUDE_DIRS})
-  target_link_libraries(${TEST_NAME} ${subproject_names} fmt::fmt GTest::GTest GTest::Main ${PCAP_LIBRARY} ${Poco_LIBRARIES})
+  target_link_libraries(${TEST_NAME} ${subproject_names} fmt::fmt GTest::GTest GTest::Main ${PCAP_LIBRARY})
   add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
   set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test)
 endforeach()
