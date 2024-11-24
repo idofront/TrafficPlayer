@@ -9,7 +9,7 @@
 enum Mode
 {
     Throughput,
-    Interval,
+    SpeedScale,
     Duration
 };
 
@@ -18,7 +18,7 @@ class ParseOptions
   public:
     ParseOptions(int argc, char *argv[])
     {
-        CLI::App app{"PCAP Replay Tool"};
+        CLI::App app{"PCAP Replayer"};
 
         // General options
         std::string pcap_file;
@@ -35,9 +35,9 @@ class ParseOptions
         double throughput_mbps;
         throughput->add_option("Mbps", throughput_mbps, "Throughput value in Mbps")->required();
 
-        auto interval = app.add_subcommand("interval", "Interval mode: Adjust packet interval by a factor");
-        double interval_factor;
-        interval->add_option("factor", interval_factor, "Interval factor multiplier")->required();
+        auto speedScale = app.add_subcommand("scale", "Speed scale mode: Adjust replay speed by a factor");
+        double speedScaleFactor;
+        speedScale->add_option("factor", speedScaleFactor, "Speed scale factor multiplier")->required();
 
         auto duration = app.add_subcommand("duration", "Duration mode: Replay all packets within a specified duration");
         double duration_time;
@@ -72,11 +72,11 @@ class ParseOptions
                 throw std::runtime_error("Throughput must be greater than 0");
             }
         }
-        else if (interval->parsed())
+        else if (speedScale->parsed())
         {
-            spdlog::info("Interval: factor {}", interval_factor);
-            _mode = ::Mode::Interval;
-            _intervalFactor = interval_factor;
+            spdlog::info("SpeedScale: factor {}", speedScaleFactor);
+            _mode = ::Mode::SpeedScale;
+            _SpeedScaleFactor = speedScaleFactor;
         }
         else if (duration->parsed())
         {
@@ -114,9 +114,9 @@ class ParseOptions
         return _throughputMbps;
     }
 
-    const double IntervalFactor() const
+    const double SpeedScaleFactor() const
     {
-        return _intervalFactor;
+        return _SpeedScaleFactor;
     }
 
     const double DurationTime() const
@@ -134,7 +134,7 @@ class ParseOptions
     std::string _interfaceName;
     std::filesystem::path _pcapFilePath;
     double _throughputMbps;
-    double _intervalFactor;
+    double _SpeedScaleFactor;
     double _durationTime;
     spdlog::level::level_enum _logLevel;
 };

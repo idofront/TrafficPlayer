@@ -2,7 +2,7 @@
 #include <ParseOptions.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
-#include <TrafficMaker/ScaledIntervalTrafficMaker.hpp>
+#include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
             spdlog::info("Mode: Throughput");
             trafficMakerPtr = std::make_shared<TrafficMaker::UniformTrafficMaker>(pcapFile, options.ThroughputMbps());
         }
-        else if (options.Mode() == Mode::Interval)
+        else if (options.Mode() == Mode::SpeedScale)
         {
-            spdlog::info("Mode: Interval");
+            spdlog::info("Mode: SpeedScale");
             trafficMakerPtr =
-                std::make_shared<TrafficMaker::ScaledIntervalTrafficMaker>(pcapFile, options.IntervalFactor());
+                std::make_shared<TrafficMaker::SpeedScaleRepalyTrafficMaker>(pcapFile, options.SpeedScaleFactor());
         }
         else if (options.Mode() == Mode::Duration)
         {
@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
         }
 
         auto producer = Producer(queuePtr);
-        auto consumer = Dealer(queuePtr, interface);
+        auto dealer = Dealer(queuePtr, interface);
 
-        std::thread consumer_thread(consumer);
+        auto dealer_thread = std::thread(dealer);
 
         // Read pcap file
         auto trafficRecords = trafficMakerPtr->Make();
@@ -62,12 +62,14 @@ int main(int argc, char *argv[])
         std::for_each(trafficRecords.begin(), trafficRecords.end(),
                       [&producer](const TrafficRecord &trafficRecord) { producer.Produce(trafficRecord); });
 
-        while (!queuePtr->empty())
+        do
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+        } while (!queuePtr->empty());
 
-        consumer_thread.detach();
+        // TODO: Wait for all packets to be sent.
+        // This implementation is forceful and may cause packet loss.
+        dealer_thread.detach();
     }
     catch (const std::exception &e)
     {

@@ -1,17 +1,17 @@
-#include <TrafficMaker/ScaledIntervalTrafficMaker.hpp>
+#include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 
 namespace TrafficMaker
 {
-ScaledIntervalTrafficMaker::ScaledIntervalTrafficMaker(const std::string &pcapFilePath, double intervalScaleFactor)
-    : ITrafficMaker(pcapFilePath), _intervalScaleFactor(intervalScaleFactor)
+SpeedScaleRepalyTrafficMaker::SpeedScaleRepalyTrafficMaker(const std::string &pcapFilePath, double speedScaleFactor)
+    : ITrafficMaker(pcapFilePath), _SpeedScaleFactor(speedScaleFactor)
 {
 }
 
-std::vector<TrafficRecord> ScaledIntervalTrafficMaker::Make()
+std::vector<TrafficRecord> SpeedScaleRepalyTrafficMaker::Make()
 {
     auto pcapRecords = ReadPcapFile(Path());
     auto trafficRecords = std::vector<TrafficRecord>();
-    auto intervalScaleFactor = _intervalScaleFactor;
+    auto speedScaleFactor = _SpeedScaleFactor;
 
     auto usecTimestamps = std::vector<uint64_t>();
     std::transform(pcapRecords.begin(), pcapRecords.end(), std::back_inserter(usecTimestamps),
@@ -21,12 +21,12 @@ std::vector<TrafficRecord> ScaledIntervalTrafficMaker::Make()
     auto minTimestamp = *std::min_element(usecTimestamps.begin(), usecTimestamps.end());
 
     std::transform(pcapRecords.begin(), pcapRecords.end(), std::back_inserter(trafficRecords),
-                   [minTimestamp, maxTimestamp, intervalScaleFactor](const PcapRecord &record) {
+                   [minTimestamp, maxTimestamp, speedScaleFactor](const PcapRecord &record) {
                        auto data = record.Data();
                        auto usecTimeval = record.Ts().tv_sec * 1e6 + record.Ts().tv_usec;
 
                        auto relativeUsecTimestamp = usecTimeval - minTimestamp;
-                       auto expectedInterval = relativeUsecTimestamp * intervalScaleFactor;
+                       auto expectedInterval = relativeUsecTimestamp / speedScaleFactor;
 
                        auto scaledChronoNano = std::chrono::nanoseconds(static_cast<long long>(expectedInterval * 1e3));
                        return TrafficRecord(data, scaledChronoNano);
