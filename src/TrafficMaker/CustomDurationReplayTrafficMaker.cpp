@@ -44,11 +44,6 @@ std::vector<TrafficRecord> CustomDurationReplayTrafficMaker::Make()
         trafficRecords.push_back(trafficRecord);
     }
 
-    auto totalDuration = std::accumulate(trafficRecords.begin(), trafficRecords.end(), std::chrono::nanoseconds(0),
-                                         [](std::chrono::nanoseconds acc, const TrafficRecord &record) {
-                                             return acc + record.ShouldSpendTimeSending();
-                                         });
-
     return trafficRecords;
 }
 
