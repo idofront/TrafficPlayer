@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/include/",
+        "${workspaceFolder}/proj/*/src",
+        "${workspaceFolder}/proj/*/src/**",
+        "${workspaceFolder}/plugin/*/src",
+        "${workspaceFolder}/plugin/*/src/**",
+        "${workspaceFolder}/src/**"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/clang++",
+      "cStandard": "gnu20",
+      "cppStandard": "gnu++20",
+      "std": "c++20",
+      "intelliSenseMode": "gcc-x64"
+    }
+  ],
+  "version": 4
+}
