@@ -1,7 +1,8 @@
 #include <Dealer.hpp>
+#include <numeric>
 
 Dealer::Dealer(std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
-    : queue(queue), device_name(device_name)
+    : queue(queue), device_name(device_name), ReportsPtr(std::make_shared<TrafficPlayer::ThreadSafeQueue<DealReport>>())
 {
     PrepareSocket();
 }
@@ -40,6 +41,7 @@ void Dealer::operator()()
 
 void Dealer::Send(const std::vector<uint8_t> &data)
 {
+    auto ready_time = std::chrono::system_clock::now();
     // データ送信
     if (sendto(sockfd, data.data(), data.size(), 0, (struct sockaddr *)&device, sizeof(device)) < 0)
     {
@@ -47,6 +49,9 @@ void Dealer::Send(const std::vector<uint8_t> &data)
         auto fmt = boost::format("Failed to send data: %1%");
         throw std::runtime_error(boost::str(fmt % error));
     }
+    auto sent_time = std::chrono::system_clock::now();
+    auto report = DealReport(ready_time, sent_time, data.size());
+    ReportsPtr->enqueue(report);
 }
 
 void Dealer::PrepareSocket()

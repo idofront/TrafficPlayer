@@ -1,6 +1,7 @@
 #ifndef DEALER_HPP
 #define DEALER_HPP
 
+#include <Dealer/DealReport.hpp>
 #include <ThreadSafeQueue.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
@@ -22,6 +23,7 @@ class Dealer
     virtual ~Dealer();
 
     void operator()();
+    std::shared_ptr<TrafficPlayer::ThreadSafeQueue<DealReport>> ReportsPtr;
 
   private:
     std::shared_ptr<TrafficPlayer::ThreadSafeQueue<TrafficRecord>> queue;

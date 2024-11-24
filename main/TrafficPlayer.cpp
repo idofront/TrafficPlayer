@@ -1,4 +1,5 @@
 #include <Dealer.hpp>
+#include <Dealer/DealReporter.hpp>
 #include <ParseOptions.hpp>
 #include <Producer.hpp>
 #include <ThreadSafeQueue.hpp>
@@ -54,8 +55,10 @@ int main(int argc, char *argv[])
 
         auto producer = Producer(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
+        auto dealReporter = DealReporter(dealer, std::chrono::milliseconds(1000));
 
-        auto dealer_thread = std::thread(dealer);
+        auto dealerThread = std::thread(dealer);
+        auto dealReporterThread = std::thread(dealReporter);
 
         // Read pcap file
         auto trafficRecords = trafficMakerPtr->Make();
@@ -70,7 +73,8 @@ int main(int argc, char *argv[])
 
         // TODO: Wait for all packets to be sent.
         // This implementation is forceful and may cause packet loss.
-        dealer_thread.detach();
+        dealReporterThread.detach();
+        dealerThread.detach();
     }
     catch (const std::exception &e)
     {
