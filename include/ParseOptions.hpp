@@ -68,8 +68,8 @@ class ParseOptions
         if (throughput->parsed())
         {
             spdlog::info("Throughput: {} Mbps", throughput_mbps);
-            _mode = ::Mode::Throughput;
-            _throughputMbps = throughput_mbps;
+            _Mode = ::Mode::Throughput;
+            _ThroughputMbps = throughput_mbps;
 
             if (throughput_mbps <= 0)
             {
@@ -79,44 +79,44 @@ class ParseOptions
         else if (speedScale->parsed())
         {
             spdlog::info("SpeedScale: factor {}", speedScaleFactor);
-            _mode = ::Mode::SpeedScale;
+            _Mode = ::Mode::SpeedScale;
             _SpeedScaleFactor = speedScaleFactor;
         }
         else if (duration->parsed())
         {
             spdlog::info("Duration: {} seconds", duration_time);
-            _mode = ::Mode::Duration;
-            _durationTime = duration_time;
+            _Mode = ::Mode::Duration;
+            _DurationTime = duration_time;
         }
         else
         {
             throw std::runtime_error("No mode specified");
         }
 
-        _interfaceName = network_interface;
-        _pcapFilePath = pcap_file;
-        _logLevel = spdlog::level::from_str(log_level);
-        _reportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
+        _InterfaceName = network_interface;
+        _PcapFilePath = pcap_file;
+        _LogLevel = spdlog::level::from_str(log_level);
+        _ReportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
     }
 
     const std::string InterfaceName() const
     {
-        return _interfaceName;
+        return _InterfaceName;
     }
 
     const std::filesystem::path PcapFilePath() const
     {
-        return _pcapFilePath;
+        return _PcapFilePath;
     }
 
     const ::Mode Mode() const
     {
-        return _mode;
+        return _Mode;
     }
 
     const double ThroughputMbps() const
     {
-        return _throughputMbps;
+        return _ThroughputMbps;
     }
 
     const double SpeedScaleFactor() const
@@ -126,28 +126,28 @@ class ParseOptions
 
     const double DurationTime() const
     {
-        return _durationTime;
+        return _DurationTime;
     }
 
     const spdlog::level::level_enum LogLevel() const
     {
-        return _logLevel;
+        return _LogLevel;
     }
 
     const std::chrono::milliseconds ReportIntervalUsec() const
     {
-        return _reportIntervalUsec;
+        return _ReportIntervalUsec;
     }
 
   private:
-    ::Mode _mode;
-    std::string _interfaceName;
-    std::filesystem::path _pcapFilePath;
-    double _throughputMbps;
+    ::Mode _Mode;
+    std::string _InterfaceName;
+    std::filesystem::path _PcapFilePath;
+    double _ThroughputMbps;
     double _SpeedScaleFactor;
-    double _durationTime;
-    spdlog::level::level_enum _logLevel;
-    std::chrono::milliseconds _reportIntervalUsec;
+    double _DurationTime;
+    spdlog::level::level_enum _LogLevel;
+    std::chrono::milliseconds _ReportIntervalUsec;
 };
 
 #endif
