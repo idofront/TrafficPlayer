@@ -1,7 +1,6 @@
 #include <TransmissionTimingAdjuster.hpp>
 
-TransmissionTimingAdjuster::TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue)
-    : queue(queue)
+TransmissionTimingAdjuster::TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue) : queue(queue)
 {
 }
 
