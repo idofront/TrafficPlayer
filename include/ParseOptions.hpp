@@ -18,7 +18,7 @@ class ParseOptions
   public:
     ParseOptions(int argc, char *argv[])
     {
-        CLI::App app{"PCAP Replayer"};
+        CLI::App app{"TrafficPlayer"};
 
         // General options
         std::string pcap_file;
