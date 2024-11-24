@@ -30,6 +30,9 @@ class ParseOptions
         std::string log_level = "info";
         app.add_option("--log-level", log_level, "Log level (trace, debug, info, warn, error, critical)");
 
+        auto reportIntervalSec = (double)0.0;
+        app.add_option("--report-interval", reportIntervalSec, "Interval to show reports in seconds")->default_val(1.0);
+
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
         double throughput_mbps;
@@ -93,6 +96,7 @@ class ParseOptions
         _interfaceName = network_interface;
         _pcapFilePath = pcap_file;
         _logLevel = spdlog::level::from_str(log_level);
+        _reportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
     }
 
     const std::string InterfaceName() const
@@ -130,6 +134,11 @@ class ParseOptions
         return _logLevel;
     }
 
+    const std::chrono::milliseconds ReportIntervalUsec() const
+    {
+        return _reportIntervalUsec;
+    }
+
   private:
     ::Mode _mode;
     std::string _interfaceName;
@@ -138,6 +147,7 @@ class ParseOptions
     double _SpeedScaleFactor;
     double _durationTime;
     spdlog::level::level_enum _logLevel;
+    std::chrono::milliseconds _reportIntervalUsec;
 };
 
 #endif

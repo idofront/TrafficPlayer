@@ -50,6 +50,6 @@ void DealReporter::ShowReports(const std::vector<DealReport> &reports,
     auto throughput = totalSizeKiloBits / rangeSecondsAsDouble;
     auto packetPerSecond = reports.size() / rangeSecondsAsDouble;
 
-    auto fmt = boost::format("Total: %d bytes, Throughput: %.3f Kbps, %.3f packets/s");
+    auto fmt = boost::format("[Report] Total: %d bytes, Throughput: %.3f Kbps, %.3f packets/s");
     spdlog::info(boost::str(fmt % totalSize % throughput % packetPerSecond));
 }
