@@ -2,6 +2,7 @@
 #include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
 #include <ThreadSafeQueue.hpp>
+#include <TimingAdjuster/ReserveTimingAdjuster.hpp>
 #include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
@@ -54,7 +55,8 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Unknown mode");
         }
 
-        auto producer = TransmissionTimingAdjuster(queuePtr);
+        // auto producer = TransmissionTimingAdjuster(queuePtr);
+        auto producer = ReserveTimingAdjuster(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
         auto dealReporter = DealReporter(dealer, reportInterval);
 
