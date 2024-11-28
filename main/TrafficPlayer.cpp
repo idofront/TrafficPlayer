@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
         do
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        } while (!queuePtr->empty());
+        } while (!queuePtr->Empty());
 
         // TODO: Wait for all packets to be sent.
         // This implementation is forceful and may cause packet loss.

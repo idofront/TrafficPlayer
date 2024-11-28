@@ -9,38 +9,38 @@
 template <typename T> class BoundedThreadSafeQueue : public IThreadSafeQueue<T>
 {
   public:
-    explicit BoundedThreadSafeQueue(size_t max_size) : max_size(max_size)
+    explicit BoundedThreadSafeQueue(size_t max_size) : _MaxSize(max_size)
     {
     }
 
-    virtual void enqueue(T value) override
+    virtual void Enqueue(T value) override
     {
-        std::unique_lock<std::mutex> lock(this->mtx);
-        cv_full.wait(lock, [this] { return this->q.size() < max_size; });
-        this->q.push(std::move(value));
-        this->cv.notify_one();
+        std::unique_lock<std::mutex> lock(this->_Mutex);
+        _ConditionVariableFullQueue.wait(lock, [this] { return this->_Queue.size() < _MaxSize; });
+        this->_Queue.push(std::move(value));
+        this->_ConditionVariable.notify_one();
     }
 
-    virtual bool try_enqueue(T value, std::chrono::milliseconds timeout)
+    virtual bool TryEnqueue(T value, std::chrono::milliseconds timeout)
     {
-        std::unique_lock<std::mutex> lock(this->mtx);
-        if (cv_full.wait_for(lock, timeout, [this] { return this->q.size() < max_size; }))
+        std::unique_lock<std::mutex> lock(this->_Mutex);
+        if (_ConditionVariableFullQueue.wait_for(lock, timeout, [this] { return this->_Queue.size() < _MaxSize; }))
         {
-            this->q.push(std::move(value));
-            this->cv.notify_one();
+            this->_Queue.push(std::move(value));
+            this->_ConditionVariable.notify_one();
             return true;
         }
         return false;
     }
 
-    virtual std::optional<T> dequeue(std::chrono::milliseconds timeout) override
+    virtual std::optional<T> Dequeue(std::chrono::milliseconds timeout) override
     {
-        std::unique_lock<std::mutex> lock(this->mtx);
-        if (this->cv.wait_for(lock, timeout, [this] { return !this->q.empty(); }))
+        std::unique_lock<std::mutex> lock(this->_Mutex);
+        if (this->_ConditionVariable.wait_for(lock, timeout, [this] { return !this->_Queue.empty(); }))
         {
-            T value = std::move(this->q.front());
-            this->q.pop();
-            cv_full.notify_one();
+            T value = std::move(this->_Queue.front());
+            this->_Queue.pop();
+            _ConditionVariableFullQueue.notify_one();
             return value;
         }
         else
@@ -49,31 +49,31 @@ template <typename T> class BoundedThreadSafeQueue : public IThreadSafeQueue<T>
         }
     }
 
-    virtual bool try_dequeue(T &value) override
+    virtual bool TryDequeue(T &value) override
     {
-        std::lock_guard<std::mutex> lock(this->mtx);
-        if (this->q.empty())
+        std::lock_guard<std::mutex> lock(this->_Mutex);
+        if (this->_Queue.empty())
         {
             return false;
         }
-        value = std::move(this->q.front());
-        this->q.pop();
-        cv_full.notify_one();
+        value = std::move(this->_Queue.front());
+        this->_Queue.pop();
+        _ConditionVariableFullQueue.notify_one();
         return true;
     }
 
-    virtual bool empty() const override
+    virtual bool Empty() const override
     {
-        std::lock_guard<std::mutex> lock(mtx);
-        return q.empty();
+        std::lock_guard<std::mutex> lock(_Mutex);
+        return _Queue.empty();
     }
 
   private:
-    std::queue<T> q;
-    mutable std::mutex mtx;
-    std::condition_variable cv;
-    std::condition_variable cv_full;
-    size_t max_size;
+    std::queue<T> _Queue;
+    mutable std::mutex _Mutex;
+    std::condition_variable _ConditionVariable;
+    std::condition_variable _ConditionVariableFullQueue;
+    size_t _MaxSize;
 };
 
 #endif

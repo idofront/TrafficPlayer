@@ -18,10 +18,10 @@ void DealReporter::operator()()
         showReportsReservation = std::chrono::system_clock::now() + _Interval;
 
         auto reports = std::vector<DealReport>();
-        while (!_Dealer.ReportsPtr->empty())
+        while (!_Dealer.ReportsPtr->Empty())
         {
             auto timeout = std::chrono::milliseconds(1000);
-            auto report = _Dealer.ReportsPtr->dequeue(timeout);
+            auto report = _Dealer.ReportsPtr->Dequeue(timeout);
             if (report.has_value())
             {
                 reports.push_back(report.value());

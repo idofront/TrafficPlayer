@@ -7,11 +7,11 @@
 template <typename T> class IThreadSafeQueue
 {
   public:
-    virtual void enqueue(T value) = 0;
-    virtual bool try_enqueue(T value, std::chrono::milliseconds timeout) = 0;
-    virtual std::optional<T> dequeue(std::chrono::milliseconds timeout) = 0;
-    virtual bool try_dequeue(T &value) = 0;
-    virtual bool empty() const = 0;
+    virtual void Enqueue(T value) = 0;
+    virtual bool TryEnqueue(T value, std::chrono::milliseconds timeout) = 0;
+    virtual std::optional<T> Dequeue(std::chrono::milliseconds timeout) = 0;
+    virtual bool TryDequeue(T &value) = 0;
+    virtual bool Empty() const = 0;
 };
 
 #endif

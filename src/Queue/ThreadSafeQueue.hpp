@@ -9,26 +9,26 @@
 template <typename T> class ThreadSafeQueue : public IThreadSafeQueue<T>
 {
   public:
-    virtual void enqueue(T value) override
+    virtual void Enqueue(T value) override
     {
-        std::lock_guard<std::mutex> lock(mtx);
-        q.push(std::move(value));
-        cv.notify_one();
+        std::lock_guard<std::mutex> lock(_Mutex);
+        _Queue.push(std::move(value));
+        _ConditionVariable.notify_one();
     }
 
-    virtual bool try_enqueue(T value, std::chrono::milliseconds timeout) override
+    virtual bool TryEnqueue(T value, std::chrono::milliseconds timeout) override
     {
-        this->enqueue(std::move(value));
+        this->Enqueue(std::move(value));
         return true;
     }
 
-    virtual std::optional<T> dequeue(std::chrono::milliseconds timeout) override
+    virtual std::optional<T> Dequeue(std::chrono::milliseconds timeout) override
     {
-        std::unique_lock<std::mutex> lock(mtx);
-        if (cv.wait_for(lock, timeout, [this] { return !q.empty(); }))
+        std::unique_lock<std::mutex> lock(_Mutex);
+        if (_ConditionVariable.wait_for(lock, timeout, [this] { return !_Queue.empty(); }))
         {
-            T value = std::move(q.front());
-            q.pop();
+            T value = std::move(_Queue.front());
+            _Queue.pop();
             return value;
         }
         else
@@ -37,28 +37,28 @@ template <typename T> class ThreadSafeQueue : public IThreadSafeQueue<T>
         }
     }
 
-    virtual bool try_dequeue(T &value) override
+    virtual bool TryDequeue(T &value) override
     {
-        std::lock_guard<std::mutex> lock(mtx);
-        if (q.empty())
+        std::lock_guard<std::mutex> lock(_Mutex);
+        if (_Queue.empty())
         {
             return false;
         }
-        value = std::move(q.front());
-        q.pop();
+        value = std::move(_Queue.front());
+        _Queue.pop();
         return true;
     }
 
-    virtual bool empty() const override
+    virtual bool Empty() const override
     {
-        std::lock_guard<std::mutex> lock(mtx);
-        return q.empty();
+        std::lock_guard<std::mutex> lock(_Mutex);
+        return _Queue.empty();
     }
 
   private:
-    std::queue<T> q;
-    mutable std::mutex mtx;
-    std::condition_variable cv;
+    std::queue<T> _Queue;
+    mutable std::mutex _Mutex;
+    std::condition_variable _ConditionVariable;
 };
 
 #endif

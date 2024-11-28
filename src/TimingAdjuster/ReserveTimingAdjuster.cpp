@@ -12,7 +12,7 @@ ReserveTimingAdjuster::ReserveTimingAdjuster(std::shared_ptr<ThreadSafeQueue<Tra
             while (true)
             {
                 auto dequeueTimeout = std::chrono::milliseconds(1);
-                auto reserveTimeRecord = _ReserveQueue->dequeue(dequeueTimeout);
+                auto reserveTimeRecord = _ReserveQueue->Dequeue(dequeueTimeout);
                 if (!reserveTimeRecord.has_value())
                 {
                     continue;
@@ -39,7 +39,7 @@ void ReserveTimingAdjuster::Produce(const TrafficRecord &trafficRecord)
     auto reserveSendTime = _LatestReservationTime + trafficRecord.ShouldSpendTimeSending();
     auto reserveTimeRecord = ReserveTimeRecord(trafficRecord.Data(), reserveSendTime);
 
-    _ReserveQueue->enqueue(reserveTimeRecord);
+    _ReserveQueue->Enqueue(reserveTimeRecord);
     _LatestReservationTime = reserveSendTime;
 }
 
@@ -54,6 +54,6 @@ std::function<void(std::shared_ptr<ThreadSafeQueue<TrafficRecord>>)> ReserveTimi
         auto reservationTime = reserveTimeRecord.ReservationTime();
         std::this_thread::sleep_until(reservationTime);
         auto trafficRecord = TrafficRecord(reserveTimeRecord.Data(), std::chrono::nanoseconds(0));
-        _Queue->enqueue(trafficRecord);
+        _Queue->Enqueue(trafficRecord);
     };
 }
