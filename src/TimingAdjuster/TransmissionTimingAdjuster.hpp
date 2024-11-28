@@ -1,7 +1,7 @@
 #ifndef PRODUCER_HPP
 #define PRODUCER_HPP
 
-#include <ThreadSafeQueue.hpp>
+#include <Queue/ThreadSafeQueue.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <memory>

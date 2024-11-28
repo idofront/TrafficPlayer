@@ -2,7 +2,7 @@
 #define DEALER__DEAL_REPORTER_HPP
 
 #include <Dealer/Dealer.hpp>
-#include <ThreadSafeQueue.hpp>
+#include <Queue/ThreadSafeQueue.hpp>
 #include <chrono>
 #include <memory>
 

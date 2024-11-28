@@ -1,6 +1,7 @@
-#include <TransmissionTimingAdjuster.hpp>
+#include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 
-TransmissionTimingAdjuster::TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue) : queue(queue)
+TransmissionTimingAdjuster::TransmissionTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue)
+    : queue(queue)
 {
 }
 
@@ -9,12 +10,12 @@ void TransmissionTimingAdjuster::Produce(const TrafficRecord &trafficRecord)
     auto shouldWait = trafficRecord.ShouldSpendTimeSending();
     auto shouldWaitUntil = std::chrono::system_clock::now() + shouldWait;
 
-    if (!queue->empty())
+    if (!queue->Empty())
     {
         spdlog::warn("Queue is not empty. Probably consumer is not consuming fast enough.");
     }
 
-    queue->enqueue(trafficRecord);
+    queue->Enqueue(trafficRecord);
     spdlog::trace("Produced: {}", TrafficPlayer::HexString(trafficRecord.Data()));
 
     auto shouldWaitMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(shouldWait);

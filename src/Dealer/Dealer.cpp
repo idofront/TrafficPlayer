@@ -17,7 +17,7 @@ void Dealer::operator()()
     while (true)
     {
         auto timeout = std::chrono::milliseconds(1000);
-        auto result = queue->dequeue(timeout);
+        auto result = queue->Dequeue(timeout);
 
         if (result.has_value())
         {
@@ -51,7 +51,7 @@ void Dealer::Send(const std::vector<uint8_t> &data)
     }
     auto sent_time = std::chrono::system_clock::now();
     auto report = DealReport(ready_time, sent_time, data.size());
-    ReportsPtr->enqueue(report);
+    ReportsPtr->Enqueue(report);
 }
 
 void Dealer::PrepareSocket()

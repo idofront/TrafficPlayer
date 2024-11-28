@@ -1,13 +1,14 @@
 #include <Dealer/DealReporter.hpp>
 #include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
-#include <ThreadSafeQueue.hpp>
+#include <Queue/ThreadSafeQueue.hpp>
+#include <TimingAdjuster/ReserveTimingAdjuster.hpp>
+#include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
-#include <TransmissionTimingAdjuster.hpp>
 #include <boost/format.hpp>
 #include <filesystem>
 #include <iostream>
@@ -54,7 +55,8 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Unknown mode");
         }
 
-        auto producer = TransmissionTimingAdjuster(queuePtr);
+        // auto producer = TransmissionTimingAdjuster(queuePtr);
+        auto producer = ReserveTimingAdjuster(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
         auto dealReporter = DealReporter(dealer, reportInterval);
 
@@ -91,7 +93,7 @@ int main(int argc, char *argv[])
         do
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        } while (!queuePtr->empty());
+        } while (!queuePtr->Empty());
 
         // TODO: Wait for all packets to be sent.
         // This implementation is forceful and may cause packet loss.
