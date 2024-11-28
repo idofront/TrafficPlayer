@@ -3,6 +3,10 @@
 
 #include <Dealer/Dealer.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
+#include <UnitConverter/BinaryPrefixConversion.hpp>
+#include <UnitConverter/NoConversion.hpp>
+#include <UnitConverter/SiPrefixConversion.hpp>
+#include <UnitConverter/UnitConverter.hpp>
 #include <chrono>
 #include <memory>
 
@@ -18,7 +22,9 @@ class DealReporter
     std::chrono::milliseconds _Interval;
     static void ShowReports(const std::vector<DealReport> &reports,
                             std::chrono::time_point<std::chrono::system_clock> rangeStart,
-                            std::chrono::time_point<std::chrono::system_clock> rangeEnd);
+                            std::chrono::time_point<std::chrono::system_clock> rangeEnd,
+                            const UnitConverter &_UnitConverter);
+    UnitConverter _UnitConverter;
 };
 
 #endif

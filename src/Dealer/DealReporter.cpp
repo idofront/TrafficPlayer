@@ -1,8 +1,10 @@
 #include <Dealer/DealReporter.hpp>
 #include <numeric>
 
-DealReporter::DealReporter(Dealer &dealer, std::chrono::milliseconds interval) : _Dealer(dealer), _Interval(interval)
+DealReporter::DealReporter(Dealer &dealer, std::chrono::milliseconds interval)
+    : _Dealer(dealer), _Interval(interval), _UnitConverter(std::make_unique<NoConversion>())
 {
+    _UnitConverter = UnitConverter(std::make_shared<SiPrefixConversion>());
 }
 
 void DealReporter::operator()()
@@ -40,22 +42,29 @@ void DealReporter::operator()()
         }
         auto rangeEnd = std::chrono::system_clock::now();
 
-        ShowReports(reports, rangeStart, rangeEnd);
+        ShowReports(reports, rangeStart, rangeEnd, _UnitConverter);
     }
 }
 
 void DealReporter::ShowReports(const std::vector<DealReport> &reports,
                                std::chrono::time_point<std::chrono::system_clock> rangeStart,
-                               std::chrono::time_point<std::chrono::system_clock> rangeEnd)
+                               std::chrono::time_point<std::chrono::system_clock> rangeEnd,
+                               const UnitConverter &_UnitConverter)
 {
     auto range = std::chrono::duration_cast<std::chrono::nanoseconds>(rangeEnd - rangeStart).count();
     auto rangeSecondsAsDouble = range / 1'000'000'000.0;
     auto totalSize = std::accumulate(reports.begin(), reports.end(), 0,
                                      [](int sum, const DealReport &report) { return sum + report.PacketSize(); });
-    auto totalSizeKiloBits = totalSize * 8 / 1'000.0;
-    auto throughput = totalSizeKiloBits / rangeSecondsAsDouble;
+    auto totalSizeBits = totalSize * 8;
+    auto throughput = totalSizeBits / rangeSecondsAsDouble;
     auto packetPerSecond = reports.size() / rangeSecondsAsDouble;
 
-    auto fmt = boost::format("[Report] Total: %d bytes, Throughput: %.3f Kbps, %.3f packets/s");
-    spdlog::info(boost::str(fmt % totalSize % throughput % packetPerSecond));
+    auto totalSizeConversionResult = _UnitConverter.Convert(totalSize);
+    auto throughputConversionResult = _UnitConverter.Convert(throughput);
+    auto packetPerSecondConversionResult = _UnitConverter.Convert(packetPerSecond);
+
+    auto fmt = boost::format("[Report] Total: %7.3f %sB, Throughput: %7.3f %sbps, %7.3f %spackets/s");
+    spdlog::info(boost::str(fmt % totalSizeConversionResult.ConvertedValue % totalSizeConversionResult.Unit %
+                            throughputConversionResult.ConvertedValue % throughputConversionResult.Unit %
+                            packetPerSecondConversionResult.ConvertedValue % packetPerSecondConversionResult.Unit));
 }
