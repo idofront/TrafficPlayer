@@ -42,11 +42,11 @@ void DealReporter::ShowReports(const std::vector<DealReport> &reports,
                                std::chrono::time_point<std::chrono::system_clock> rangeStart,
                                std::chrono::time_point<std::chrono::system_clock> rangeEnd)
 {
-    auto range = std::chrono::duration_cast<std::chrono::milliseconds>(rangeEnd - rangeStart).count();
-    auto rangeSecondsAsDouble = range / 1000.0;
+    auto range = std::chrono::duration_cast<std::chrono::nanoseconds>(rangeEnd - rangeStart).count();
+    auto rangeSecondsAsDouble = range / 1'000'000'000.0;
     auto totalSize = std::accumulate(reports.begin(), reports.end(), 0,
                                      [](int sum, const DealReport &report) { return sum + report.PacketSize(); });
-    auto totalSizeKiloBits = totalSize * 8 / 1000.0;
+    auto totalSizeKiloBits = totalSize * 8 / 1'000.0;
     auto throughput = totalSizeKiloBits / rangeSecondsAsDouble;
     auto packetPerSecond = reports.size() / rangeSecondsAsDouble;
 
