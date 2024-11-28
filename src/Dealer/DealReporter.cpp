@@ -7,6 +7,12 @@ DealReporter::DealReporter(Dealer &dealer, std::chrono::milliseconds interval) :
 
 void DealReporter::operator()()
 {
+    if (_Interval.count() <= 0)
+    {
+        spdlog::info("A deal reporter is disabled. The interval is zero or negative.");
+        return;
+    }
+
     auto showReportsReservation = std::chrono::system_clock::now() + _Interval;
 
     while (true)
