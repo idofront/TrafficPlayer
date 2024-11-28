@@ -1,7 +1,7 @@
 #include <Dealer/DealReporter.hpp>
 #include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
-#include <ThreadSafeQueue.hpp>
+#include <Queue/ThreadSafeQueue.hpp>
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
 #include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>

@@ -1,7 +1,7 @@
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
 
 ReserveTimingAdjuster::ReserveTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue)
-    : _Queue(queue), _ReserveQueue(std::make_shared<ThreadSafeQueue<ReserveTimeRecord>>()),
+    : _Queue(queue), _ReserveQueue(std::make_shared<BoundedThreadSafeQueue<ReserveTimeRecord>>(128)),
       _LatestReservationTime(std::chrono::system_clock::now()), _ThreadPool()
 {
     auto threadCount = std::thread::hardware_concurrency();

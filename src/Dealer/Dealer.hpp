@@ -2,7 +2,7 @@
 #define DEALER_HPP
 
 #include <Dealer/DealReport.hpp>
-#include <ThreadSafeQueue.hpp>
+#include <Queue/ThreadSafeQueue.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <arpa/inet.h>

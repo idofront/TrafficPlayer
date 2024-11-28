@@ -1,7 +1,8 @@
 #ifndef TIMING_ADJUSTER__RESERVE_TIMING_ADJUSTER_HPP
 #define TIMING_ADJUSTER__RESERVE_TIMING_ADJUSTER_HPP
 
-#include <ThreadSafeQueue.hpp>
+#include <Queue/BoundedThreadSafeQueue.hpp>
+#include <Queue/ThreadSafeQueue.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <memory>
@@ -44,7 +45,7 @@ class ReserveTimingAdjuster
 
   private:
     std::shared_ptr<ThreadSafeQueue<TrafficRecord>> _Queue;
-    std::shared_ptr<ThreadSafeQueue<ReserveTimeRecord>> _ReserveQueue;
+    std::shared_ptr<BoundedThreadSafeQueue<ReserveTimeRecord>> _ReserveQueue;
     std::chrono::time_point<std::chrono::system_clock> _LatestReservationTime;
 
     /// @brief Thread pool to send data
