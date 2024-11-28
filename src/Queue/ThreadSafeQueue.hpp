@@ -1,23 +1,28 @@
-#ifndef THREAD_SAFE_QUEUE_HPP
-#define THREAD_SAFE_QUEUE_HPP
+#ifndef QUEUE__THREAD_SAFE_QUEUE_HPP
+#define QUEUE__THREAD_SAFE_QUEUE_HPP
 
-#include <chrono>
+#include <Queue/IThreadSafeQueue.hpp>
 #include <condition_variable>
 #include <mutex>
-#include <optional>
 #include <queue>
 
-template <typename T> class ThreadSafeQueue
+template <typename T> class ThreadSafeQueue : public IThreadSafeQueue<T>
 {
   public:
-    void enqueue(T value)
+    virtual void enqueue(T value) override
     {
         std::lock_guard<std::mutex> lock(mtx);
         q.push(std::move(value));
         cv.notify_one();
     }
 
-    std::optional<T> dequeue(std::chrono::milliseconds timeout)
+    virtual bool try_enqueue(T value, std::chrono::milliseconds timeout) override
+    {
+        this->enqueue(std::move(value));
+        return true;
+    }
+
+    virtual std::optional<T> dequeue(std::chrono::milliseconds timeout) override
     {
         std::unique_lock<std::mutex> lock(mtx);
         if (cv.wait_for(lock, timeout, [this] { return !q.empty(); }))
@@ -32,7 +37,7 @@ template <typename T> class ThreadSafeQueue
         }
     }
 
-    bool try_dequeue(T &value)
+    virtual bool try_dequeue(T &value) override
     {
         std::lock_guard<std::mutex> lock(mtx);
         if (q.empty())
@@ -44,7 +49,7 @@ template <typename T> class ThreadSafeQueue
         return true;
     }
 
-    bool empty() const
+    virtual bool empty() const override
     {
         std::lock_guard<std::mutex> lock(mtx);
         return q.empty();

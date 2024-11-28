@@ -1,46 +1,45 @@
-#ifndef BOUNDED_THREAD_SAFE_QUEUE_HPP
-#define BOUNDED_THREAD_SAFE_QUEUE_HPP
+#ifndef QUEUE__BOUNDED_THREAD_SAFE_QUEUE_HPP
+#define QUEUE__BOUNDED_THREAD_SAFE_QUEUE_HPP
 
-#include <chrono>
+#include <Queue/IThreadSafeQueue.hpp>
 #include <condition_variable>
 #include <mutex>
-#include <optional>
 #include <queue>
 
-template <typename T> class BoundedThreadSafeQueue
+template <typename T> class BoundedThreadSafeQueue : public IThreadSafeQueue<T>
 {
   public:
     explicit BoundedThreadSafeQueue(size_t max_size) : max_size(max_size)
     {
     }
 
-    void enqueue(T value)
+    virtual void enqueue(T value) override
     {
-        std::unique_lock<std::mutex> lock(mtx);
-        cv_full.wait(lock, [this] { return q.size() < max_size; });
-        q.push(std::move(value));
-        cv.notify_one();
+        std::unique_lock<std::mutex> lock(this->mtx);
+        cv_full.wait(lock, [this] { return this->q.size() < max_size; });
+        this->q.push(std::move(value));
+        this->cv.notify_one();
     }
 
-    bool try_enqueue(T value, std::chrono::milliseconds timeout)
+    virtual bool try_enqueue(T value, std::chrono::milliseconds timeout)
     {
-        std::unique_lock<std::mutex> lock(mtx);
-        if (cv_full.wait_for(lock, timeout, [this] { return q.size() < max_size; }))
+        std::unique_lock<std::mutex> lock(this->mtx);
+        if (cv_full.wait_for(lock, timeout, [this] { return this->q.size() < max_size; }))
         {
-            q.push(std::move(value));
-            cv.notify_one();
+            this->q.push(std::move(value));
+            this->cv.notify_one();
             return true;
         }
         return false;
     }
 
-    std::optional<T> dequeue(std::chrono::milliseconds timeout)
+    virtual std::optional<T> dequeue(std::chrono::milliseconds timeout) override
     {
-        std::unique_lock<std::mutex> lock(mtx);
-        if (cv.wait_for(lock, timeout, [this] { return !q.empty(); }))
+        std::unique_lock<std::mutex> lock(this->mtx);
+        if (this->cv.wait_for(lock, timeout, [this] { return !this->q.empty(); }))
         {
-            T value = std::move(q.front());
-            q.pop();
+            T value = std::move(this->q.front());
+            this->q.pop();
             cv_full.notify_one();
             return value;
         }
@@ -50,20 +49,20 @@ template <typename T> class BoundedThreadSafeQueue
         }
     }
 
-    bool try_dequeue(T &value)
+    virtual bool try_dequeue(T &value) override
     {
-        std::lock_guard<std::mutex> lock(mtx);
-        if (q.empty())
+        std::lock_guard<std::mutex> lock(this->mtx);
+        if (this->q.empty())
         {
             return false;
         }
-        value = std::move(q.front());
-        q.pop();
+        value = std::move(this->q.front());
+        this->q.pop();
         cv_full.notify_one();
         return true;
     }
 
-    bool empty() const
+    virtual bool empty() const override
     {
         std::lock_guard<std::mutex> lock(mtx);
         return q.empty();
