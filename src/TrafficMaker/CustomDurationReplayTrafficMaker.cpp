@@ -8,7 +8,7 @@ namespace TrafficMaker
 
 CustomDurationReplayTrafficMaker::CustomDurationReplayTrafficMaker(const std::string &pcapFilePath,
                                                                    std::chrono::milliseconds durationTime)
-    : ITrafficMaker(pcapFilePath), _DurationTime(durationTime)
+    : AbstractTrafficMaker(pcapFilePath), _DurationTime(durationTime)
 {
 }
 

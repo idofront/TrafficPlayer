@@ -3,7 +3,7 @@
 namespace TrafficMaker
 {
 SpeedScaleRepalyTrafficMaker::SpeedScaleRepalyTrafficMaker(const std::string &pcapFilePath, double speedScaleFactor)
-    : ITrafficMaker(pcapFilePath), _SpeedScaleFactor(speedScaleFactor)
+    : AbstractTrafficMaker(pcapFilePath), _SpeedScaleFactor(speedScaleFactor)
 {
 }
 

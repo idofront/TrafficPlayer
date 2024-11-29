@@ -1,5 +1,5 @@
-#ifndef TRAFFIC_MAKER__I_TRAFFIC_MAKER_HPP
-#define TRAFFIC_MAKER__I_TRAFFIC_MAKER_HPP
+#ifndef TRAFFIC_MAKER__ABSTRACT_TRAFFIC_MAKER_HPP
+#define TRAFFIC_MAKER__ABSTRACT_TRAFFIC_MAKER_HPP
 
 #include <TrafficMaker/PcapRecord.hpp>
 #include <TrafficRecord.hpp>
@@ -9,11 +9,11 @@
 
 namespace TrafficMaker
 {
-class ITrafficMaker
+class AbstractTrafficMaker
 {
   public:
-    ITrafficMaker(const std::filesystem::path &path);
-    virtual ~ITrafficMaker() = 0;
+    AbstractTrafficMaker(const std::filesystem::path &path);
+    virtual ~AbstractTrafficMaker() = 0;
     virtual std::vector<TrafficRecord> Make() = 0;
 
   protected:

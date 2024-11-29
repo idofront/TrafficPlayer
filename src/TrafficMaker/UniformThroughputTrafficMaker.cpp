@@ -5,7 +5,7 @@
 namespace TrafficMaker
 {
 UniformTrafficMaker::UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps)
-    : ITrafficMaker(path), _expectedThroughputMbps(expectedThroughputMbps)
+    : AbstractTrafficMaker(path), _expectedThroughputMbps(expectedThroughputMbps)
 {
 }
 

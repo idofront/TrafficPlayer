@@ -4,7 +4,7 @@
 namespace TrafficMaker
 {
 PacketsPerSecondTrafficMaker::PacketsPerSecondTrafficMaker(std::string pcapFilePath, double packetsPerSecond)
-    : ITrafficMaker(pcapFilePath), _PacketsPerSecond(packetsPerSecond)
+    : AbstractTrafficMaker(pcapFilePath), _PacketsPerSecond(packetsPerSecond)
 {
 }
 

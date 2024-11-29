@@ -1,12 +1,12 @@
 #ifndef TRAFFIC_MAKER__SPEED_SCALED_REPLAY_TRAFFIC_MAKER_HPP
 #define TRAFFIC_MAKER__SPEED_SCALED_REPLAY_TRAFFIC_MAKER_HPP
 
-#include <TrafficMaker/ITrafficMaker.hpp>
+#include <TrafficMaker/AbstractTrafficMaker.hpp>
 #include <spdlog/spdlog.h>
 
 namespace TrafficMaker
 {
-class SpeedScaleRepalyTrafficMaker : public ITrafficMaker
+class SpeedScaleRepalyTrafficMaker : public AbstractTrafficMaker
 {
   public:
     SpeedScaleRepalyTrafficMaker(const std::string &pcapFilePath, double speedScaleFactor);

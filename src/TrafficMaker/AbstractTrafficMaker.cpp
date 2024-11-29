@@ -1,21 +1,21 @@
-#include <TrafficMaker/ITrafficMaker.hpp>
+#include <TrafficMaker/AbstractTrafficMaker.hpp>
 
 namespace TrafficMaker
 {
-ITrafficMaker::ITrafficMaker(const std::filesystem::path &path) : _path(path)
+AbstractTrafficMaker::AbstractTrafficMaker(const std::filesystem::path &path) : _path(path)
 {
 }
 
-ITrafficMaker::~ITrafficMaker()
+AbstractTrafficMaker::~AbstractTrafficMaker()
 {
 }
 
-std::filesystem::path ITrafficMaker::Path() const
+std::filesystem::path AbstractTrafficMaker::Path() const
 {
     return _path;
 }
 
-std::vector<PcapRecord> ITrafficMaker::ReadPcapFile(const std::filesystem::path &path)
+std::vector<PcapRecord> AbstractTrafficMaker::ReadPcapFile(const std::filesystem::path &path)
 {
     auto pcapRecords = std::vector<PcapRecord>();
 

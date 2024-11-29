@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
         auto queuePtr = std::make_shared<ThreadSafeQueue<TrafficRecord>>();
 
-        auto trafficMakerPtr = std::shared_ptr<TrafficMaker::ITrafficMaker>(nullptr);
+        auto trafficMakerPtr = std::shared_ptr<TrafficMaker::AbstractTrafficMaker>(nullptr);
         if (options.Mode() == Mode::Throughput)
         {
             spdlog::info("Mode: Throughput");
