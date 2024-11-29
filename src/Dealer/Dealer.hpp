@@ -22,7 +22,8 @@ class Dealer
     Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name);
     virtual ~Dealer();
 
-    void operator()();
+    void Run();
+    void TryTerminate();
     std::shared_ptr<ThreadSafeQueue<DealReport>> ReportsPtr;
 
   private:
@@ -32,6 +33,7 @@ class Dealer
     struct ifreq if_idx;
     struct sockaddr_ll device;
     const std::string device_name;
+    bool _IsRequestedToTerminate;
 
     void Send(const std::vector<uint8_t> &data);
     void PrepareSocket();

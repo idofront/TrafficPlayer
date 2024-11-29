@@ -2,12 +2,12 @@
 #include <numeric>
 
 DealReporter::DealReporter(Dealer &dealer, std::chrono::milliseconds interval)
-    : _Dealer(dealer), _Interval(interval), _UnitConverter(std::make_unique<NoConversion>())
+    : _Dealer(dealer), _Interval(interval), _UnitConverter(std::make_unique<SiPrefixConversion>()),
+      _IsRequestedToTerminate(false)
 {
-    _UnitConverter = UnitConverter(std::make_shared<SiPrefixConversion>());
 }
 
-void DealReporter::operator()()
+void DealReporter::Run()
 {
     if (_Interval.count() <= 0)
     {
@@ -17,7 +17,7 @@ void DealReporter::operator()()
 
     auto showReportsReservation = std::chrono::system_clock::now() + _Interval;
 
-    while (true)
+    while (_IsRequestedToTerminate == false)
     {
         auto rangeStart = std::chrono::system_clock::now();
         std::this_thread::sleep_until(showReportsReservation);
@@ -44,6 +44,14 @@ void DealReporter::operator()()
 
         ShowReports(reports, rangeStart, rangeEnd, _UnitConverter);
     }
+
+    spdlog::debug("Deal reporter is terminated.");
+}
+
+void DealReporter::TryTerminate()
+{
+    spdlog::debug("Deal reporter is requested to terminate.");
+    _IsRequestedToTerminate = true;
 }
 
 void DealReporter::ShowReports(const std::vector<DealReport> &reports,

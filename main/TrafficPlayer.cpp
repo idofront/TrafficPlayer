@@ -3,7 +3,6 @@
 #include <ParseOptions.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
-#include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
@@ -63,13 +62,14 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Unknown mode");
         }
 
-        // auto producer = TransmissionTimingAdjuster(queuePtr);
-        auto producer = ReserveTimingAdjuster(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
         auto dealReporter = DealReporter(dealer, reportIntervalMsec);
 
-        auto dealerThread = std::thread(dealer);
-        auto dealReporterThread = std::thread(dealReporter);
+        auto dealerThread = std::thread([&dealer]() { dealer.Run(); });
+        auto dealReporterThread = std::thread([&dealReporter]() { dealReporter.Run(); });
+
+        auto producer = ReserveTimingAdjuster(queuePtr);
+        auto producerThread = std::thread([&producer]() { producer.Run(); });
 
         auto repeatCount = options.RepeatCount();
         uint64_t repeat = 0;
@@ -105,8 +105,21 @@ int main(int argc, char *argv[])
 
         // TODO: Wait for all packets to be sent.
         // This implementation is forceful and may cause packet loss.
-        dealReporterThread.detach();
-        dealerThread.detach();
+        try
+        {
+            producer.TryTerminate();
+            producerThread.join();
+
+            dealReporter.TryTerminate();
+            dealReporterThread.join();
+
+            dealer.TryTerminate();
+            dealerThread.join();
+        }
+        catch (const std::exception &e)
+        {
+            spdlog::critical(e.what());
+        }
     }
     catch (const std::exception &e)
     {
