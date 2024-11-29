@@ -10,7 +10,8 @@ enum Mode
 {
     Throughput,
     SpeedScale,
-    Duration
+    Duration,
+    PacketsPerSecond
 };
 
 class ParseOptions
@@ -38,17 +39,17 @@ class ParseOptions
 
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
-        double throughput_mbps;
-        throughput->add_option("Mbps", throughput_mbps, "Throughput value in Mbps")->default_val(0);
+        throughput->add_option("Mbps", _ThroughputMbps, "Throughput value in Mbps")->default_val(0);
 
         auto speedScale = app.add_subcommand("scale", "Speed scale mode: Adjust replay speed by a factor");
-        double speedScaleFactor;
-        speedScale->add_option("factor", speedScaleFactor, "Speed scale factor multiplier")->default_val(1);
+        speedScale->add_option("factor", _SpeedScaleFactor, "Speed scale factor multiplier")->default_val(1);
 
         auto duration =
             app.add_subcommand("duration", "Custom duration mode: Replay all packets within a specified duration");
-        double duration_time;
-        duration->add_option("time", duration_time, "Duration time in seconds")->default_val(0);
+        duration->add_option("time", _DurationTime, "Duration time in seconds")->default_val(0);
+
+        auto packetsPerSecond = app.add_subcommand("pps", "Packets per second mode: Replay at a specified rate");
+        packetsPerSecond->add_option("pps", _PacketsPerSecond, "Packets per second value")->default_val(1);
 
         // Parse command line
         try
@@ -70,26 +71,28 @@ class ParseOptions
         // Handle subcommands
         if (throughput->parsed())
         {
-            spdlog::info("Throughput: {} Mbps", throughput_mbps);
+            spdlog::info("Throughput: {} Mbps", _ThroughputMbps);
             _Mode = ::Mode::Throughput;
-            _ThroughputMbps = throughput_mbps;
 
-            if (throughput_mbps <= 0)
+            if (_ThroughputMbps <= 0)
             {
                 throw std::runtime_error("Throughput must be greater than 0");
             }
         }
         else if (speedScale->parsed())
         {
-            spdlog::info("SpeedScale: factor {}", speedScaleFactor);
+            spdlog::info("SpeedScale: factor {}", _SpeedScaleFactor);
             _Mode = ::Mode::SpeedScale;
-            _SpeedScaleFactor = speedScaleFactor;
         }
         else if (duration->parsed())
         {
-            spdlog::info("Duration: {} seconds", duration_time);
+            spdlog::info("Duration: {} seconds", _DurationTime);
             _Mode = ::Mode::Duration;
-            _DurationTime = duration_time;
+        }
+        else if (packetsPerSecond->parsed())
+        {
+            spdlog::info("PacketsPerSecond: {} packets per second", _PacketsPerSecond);
+            _Mode = ::Mode::PacketsPerSecond;
         }
         else
         {
@@ -138,6 +141,12 @@ class ParseOptions
         return _DurationTime;
     }
 
+    /// @brief Packet per second
+    const double PacketsPerSecond() const
+    {
+        return _PacketsPerSecond;
+    }
+
     /// @brief Log level
     const spdlog::level::level_enum LogLevel() const
     {
@@ -163,6 +172,7 @@ class ParseOptions
     double _ThroughputMbps;
     double _SpeedScaleFactor;
     double _DurationTime;
+    double _PacketsPerSecond;
     spdlog::level::level_enum _LogLevel;
     std::chrono::milliseconds _ReportIntervalUsec;
     uint64_t _RepeatCount;

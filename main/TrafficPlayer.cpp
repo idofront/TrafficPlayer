@@ -5,6 +5,7 @@
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
 #include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
+#include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
@@ -49,6 +50,12 @@ int main(int argc, char *argv[])
             spdlog::info("Mode: Custom duration");
             trafficMakerPtr = std::make_shared<TrafficMaker::CustomDurationReplayTrafficMaker>(
                 pcapFile, std::chrono::milliseconds(static_cast<long long>(options.DurationTime() * 1e3)));
+        }
+        else if (options.Mode() == Mode::PacketsPerSecond)
+        {
+            spdlog::info("Mode: Packets Per Second");
+            trafficMakerPtr =
+                std::make_shared<TrafficMaker::PacketsPerSecondTrafficMaker>(pcapFile, options.PacketsPerSecond());
         }
         else
         {
