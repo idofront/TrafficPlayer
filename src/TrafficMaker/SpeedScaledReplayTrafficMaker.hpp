@@ -6,11 +6,13 @@
 
 namespace TrafficMaker
 {
-class SpeedScaleRepalyTrafficMaker : public AbstractTrafficMaker
+class SpeedScaleReplayTrafficMaker : public AbstractTrafficMaker
 {
   public:
-    SpeedScaleRepalyTrafficMaker(const std::string &pcapFilePath, double speedScaleFactor);
-    std::vector<TrafficRecord> Make() override;
+    SpeedScaleReplayTrafficMaker(const std::string &pcapFilePath, double speedScaleFactor);
+
+  protected:
+    double CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords) override;
 
   private:
     double _SpeedScaleFactor;

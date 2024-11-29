@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         {
             spdlog::info("Mode: SpeedScale");
             trafficMakerPtr =
-                std::make_shared<TrafficMaker::SpeedScaleRepalyTrafficMaker>(pcapFile, options.SpeedScaleFactor());
+                std::make_shared<TrafficMaker::SpeedScaleReplayTrafficMaker>(pcapFile, options.SpeedScaleFactor());
         }
         else if (options.Mode() == Mode::Duration)
         {

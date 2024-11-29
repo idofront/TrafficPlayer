@@ -10,7 +10,9 @@ class UniformTrafficMaker : public AbstractTrafficMaker
   public:
     UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps);
     virtual ~UniformTrafficMaker();
-    virtual std::vector<TrafficRecord> Make();
+
+  protected:
+    double CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords) override;
 
   private:
     double _expectedThroughputMbps;

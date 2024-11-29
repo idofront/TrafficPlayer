@@ -10,7 +10,9 @@ class CustomDurationReplayTrafficMaker : public AbstractTrafficMaker
 {
   public:
     CustomDurationReplayTrafficMaker(const std::string &pcapFilePath, std::chrono::milliseconds durationTime);
-    std::vector<TrafficRecord> Make() override;
+
+  protected:
+    double CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords) override;
 
   private:
     std::chrono::milliseconds _DurationTime;

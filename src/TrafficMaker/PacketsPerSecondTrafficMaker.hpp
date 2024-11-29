@@ -10,7 +10,9 @@ class PacketsPerSecondTrafficMaker : public AbstractTrafficMaker
 {
   public:
     PacketsPerSecondTrafficMaker(std::string pcapFilePath, double packetsPerSecond);
-    virtual std::vector<TrafficRecord> Make() override;
+
+  protected:
+    double CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords) override;
 
   private:
     std::string _PcapFilePath;
