@@ -43,14 +43,16 @@ Options:
 - `-h, --help`: Print this help message and exit.
 - `-p, --pcap <path>`: Path to the pcap file (required).
 - `-i, --interface <name>`: Network interface to send packets (required).
-- `--log-level <level>`: Log level (trace, debug, info, warn, error, critical).
+- `--log-level <level>`: Log level (trace, debug, info, warn, error, critical, off).
 - `--report-interval <seconds>`: Interval to show reports in seconds (default: 1).
+- `--repeat <times>`: Number of times to repeat the traffic. 0 means infinite repeat (default: 1).
 
 Subcommands:
 
 - `throughput`: Throughput mode - replay at a specified throughput.
 - `scale`: Speed scale mode - adjust replay speed by a factor.
 - `duration`: Custom duration mode - replay all packets within a specified duration.
+- `pps`: Packets per second mode: Replay at a specified rate
 
 ## License
 
