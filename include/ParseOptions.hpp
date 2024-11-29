@@ -2,15 +2,17 @@
 #define PARSE_OPTIONS_HPP
 
 #include <CLI/CLI.hpp>
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
-#include <spdlog/spdlog.h>
+#include <spdlog/common.h>
 
 enum Mode
 {
     Throughput,
     SpeedScale,
-    Duration
+    Duration,
+    PacketsPerSecond
 };
 
 class ParseOptions
@@ -21,34 +23,31 @@ class ParseOptions
         CLI::App app{"TrafficPlayer"};
 
         // General options
-        std::string pcap_file;
-        app.add_option("--pcap,-p", pcap_file, "Path to the pcap file")->required();
+        app.add_option("--pcap,-p", _PcapFilePath, "Path to the pcap file")->required();
+        app.add_option("--interface,-i", _InterfaceName, "Network interface to send packets")->required();
 
-        std::string network_interface;
-        app.add_option("--interface,-i", network_interface, "Network interface to send packets")->required();
+        app.add_option("--log-level", _LogLevelString, "Log level")
+            ->check(CLI::IsMember({"trace", "debug", "info", "warn", "error", "critical", "off"}))
+            ->default_val("info");
 
-        std::string log_level = "info";
-        app.add_option("--log-level", log_level, "Log level (trace, debug, info, warn, error, critical)");
-
-        auto reportIntervalSec = (double)0.0;
-        app.add_option("--report-interval", reportIntervalSec, "Interval to show reports in seconds")->default_val(1.0);
-
+        app.add_option("--report-interval", _ReportIntervalSec, "Interval to show reports in seconds")
+            ->default_val(1.0);
         app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat")
             ->default_val(1);
 
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
-        double throughput_mbps;
-        throughput->add_option("Mbps", throughput_mbps, "Throughput value in Mbps")->default_val(0);
+        throughput->add_option("Mbps", _ThroughputMbps, "Throughput value in Mbps")->default_val(0);
 
         auto speedScale = app.add_subcommand("scale", "Speed scale mode: Adjust replay speed by a factor");
-        double speedScaleFactor;
-        speedScale->add_option("factor", speedScaleFactor, "Speed scale factor multiplier")->default_val(1);
+        speedScale->add_option("factor", _SpeedScaleFactor, "Speed scale factor multiplier")->default_val(1);
 
         auto duration =
             app.add_subcommand("duration", "Custom duration mode: Replay all packets within a specified duration");
-        double duration_time;
-        duration->add_option("time", duration_time, "Duration time in seconds")->default_val(0);
+        duration->add_option("time", _DurationTime, "Duration time in seconds")->default_val(0);
+
+        auto packetsPerSecond = app.add_subcommand("pps", "Packets per second mode: Replay at a specified rate");
+        packetsPerSecond->add_option("pps", _PacketsPerSecond, "Packets per second value")->default_val(1);
 
         // Parse command line
         try
@@ -58,6 +57,7 @@ class ParseOptions
         catch (const CLI::ParseError &e)
         {
             app.exit(e);
+            throw std::runtime_error(e.what());
         }
 
         // If help flag was specified, display help
@@ -67,39 +67,29 @@ class ParseOptions
             throw std::runtime_error("Help requested");
         }
 
+        // Handle general options
+        HandleGeneralOptions();
+
         // Handle subcommands
-        if (throughput->parsed())
+        auto modeSelecters = std::vector<std::tuple<CLI::App *, ::Mode, std::function<void()>>>{
+            {throughput, ::Mode::Throughput, std::bind(&ParseOptions::HandleThroughputSubcommand, this)},
+            {speedScale, ::Mode::SpeedScale, std::bind(&ParseOptions::HandleSpeesdScaleSubcommand, this)},
+            {duration, ::Mode::Duration, std::bind(&ParseOptions::HandleDurationSubcommand, this)},
+            {packetsPerSecond, ::Mode::PacketsPerSecond,
+             std::bind(&ParseOptions::HandlePacketsPerSecondSubcommand, this)}};
+        auto enableModeSelecters = std::vector<std::tuple<CLI::App *, ::Mode, std::function<void()>>>();
+        std::copy_if(modeSelecters.begin(), modeSelecters.end(), std::back_inserter(enableModeSelecters),
+                     [](std::tuple<CLI::App *, ::Mode, std::function<void()>> &modeSelecter) {
+                         return std::get<0>(modeSelecter)->parsed();
+                     });
+        if (enableModeSelecters.size() != 1)
         {
-            spdlog::info("Throughput: {} Mbps", throughput_mbps);
-            _Mode = ::Mode::Throughput;
-            _ThroughputMbps = throughput_mbps;
-
-            if (throughput_mbps <= 0)
-            {
-                throw std::runtime_error("Throughput must be greater than 0");
-            }
+            throw std::runtime_error("Exactly one subcommand must be specified");
         }
-        else if (speedScale->parsed())
-        {
-            spdlog::info("SpeedScale: factor {}", speedScaleFactor);
-            _Mode = ::Mode::SpeedScale;
-            _SpeedScaleFactor = speedScaleFactor;
-        }
-        else if (duration->parsed())
-        {
-            spdlog::info("Duration: {} seconds", duration_time);
-            _Mode = ::Mode::Duration;
-            _DurationTime = duration_time;
-        }
-        else
-        {
-            throw std::runtime_error("No mode specified");
-        }
-
-        _InterfaceName = network_interface;
-        _PcapFilePath = pcap_file;
-        _LogLevel = spdlog::level::from_str(log_level);
-        _ReportIntervalUsec = std::chrono::milliseconds(static_cast<long long>(reportIntervalSec * 1e3));
+        auto modeSelecter = enableModeSelecters[0];
+        _Mode = std::get<1>(modeSelecter);
+        auto subcommandHandler = std::get<2>(modeSelecter);
+        subcommandHandler();
     }
 
     /// @brief Network interface name
@@ -138,16 +128,22 @@ class ParseOptions
         return _DurationTime;
     }
 
+    /// @brief Packet per second
+    const double PacketsPerSecond() const
+    {
+        return _PacketsPerSecond;
+    }
+
     /// @brief Log level
     const spdlog::level::level_enum LogLevel() const
     {
-        return _LogLevel;
+        return spdlog::level::from_str(_LogLevelString);
     }
 
     /// @brief Interval to show reports in microseconds
-    const std::chrono::milliseconds ReportIntervalUsec() const
+    const std::chrono::nanoseconds ReportIntervalNsec() const
     {
-        return _ReportIntervalUsec;
+        return std::chrono::nanoseconds(static_cast<long long>(_ReportIntervalSec * 1e9));
     }
 
     /// @brief Number of times to repeat the traffic
@@ -163,9 +159,47 @@ class ParseOptions
     double _ThroughputMbps;
     double _SpeedScaleFactor;
     double _DurationTime;
-    spdlog::level::level_enum _LogLevel;
-    std::chrono::milliseconds _ReportIntervalUsec;
-    uint64_t _RepeatCount;
+    double _PacketsPerSecond;
+    std::string _LogLevelString;
+    double _ReportIntervalSec;
+    int64_t _RepeatCount;
+
+    void HandleGeneralOptions()
+    {
+        if (_RepeatCount < 0)
+        {
+            throw std::runtime_error("Repeat count must be greater than or equal to 0");
+        }
+    }
+
+    void HandleThroughputSubcommand()
+    {
+        if (_ThroughputMbps <= 0)
+        {
+            throw std::runtime_error("Throughput must be greater than 0");
+        }
+    }
+    void HandleSpeesdScaleSubcommand()
+    {
+        if (_SpeedScaleFactor <= 0)
+        {
+            throw std::runtime_error("Speed scale factor must be greater than 0");
+        }
+    }
+    void HandleDurationSubcommand()
+    {
+        if (_DurationTime <= 0)
+        {
+            throw std::runtime_error("Duration time must be greater than 0");
+        }
+    }
+    void HandlePacketsPerSecondSubcommand()
+    {
+        if (_PacketsPerSecond <= 0)
+        {
+            throw std::runtime_error("Packets per second must be greater than 0");
+        }
+    }
 };
 
 #endif

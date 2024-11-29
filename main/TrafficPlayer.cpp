@@ -5,6 +5,7 @@
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
 #include <TimingAdjuster/TransmissionTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
+#include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <TrafficPlayer.hpp>
@@ -28,7 +29,8 @@ int main(int argc, char *argv[])
 
         auto interface = options.InterfaceName();
         auto pcapFile = options.PcapFilePath();
-        auto reportInterval = options.ReportIntervalUsec();
+        auto reportIntervalMsec =
+            std::chrono::milliseconds(static_cast<long long>(options.ReportIntervalNsec().count() / 1e6));
 
         auto queuePtr = std::make_shared<ThreadSafeQueue<TrafficRecord>>();
 
@@ -50,6 +52,12 @@ int main(int argc, char *argv[])
             trafficMakerPtr = std::make_shared<TrafficMaker::CustomDurationReplayTrafficMaker>(
                 pcapFile, std::chrono::milliseconds(static_cast<long long>(options.DurationTime() * 1e3)));
         }
+        else if (options.Mode() == Mode::PacketsPerSecond)
+        {
+            spdlog::info("Mode: Packets Per Second");
+            trafficMakerPtr =
+                std::make_shared<TrafficMaker::PacketsPerSecondTrafficMaker>(pcapFile, options.PacketsPerSecond());
+        }
         else
         {
             throw std::runtime_error("Unknown mode");
@@ -58,7 +66,7 @@ int main(int argc, char *argv[])
         // auto producer = TransmissionTimingAdjuster(queuePtr);
         auto producer = ReserveTimingAdjuster(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
-        auto dealReporter = DealReporter(dealer, reportInterval);
+        auto dealReporter = DealReporter(dealer, reportIntervalMsec);
 
         auto dealerThread = std::thread(dealer);
         auto dealReporterThread = std::thread(dealReporter);
@@ -78,12 +86,12 @@ int main(int argc, char *argv[])
                 }
                 if (repeatCount > 1)
                 {
-                    spdlog::info("Cycle: {}/{}", repeat, repeatCount);
+                    spdlog::debug("Cycle: {}/{}", repeat, repeatCount);
                 }
             }
             else
             {
-                spdlog::info("Cycle: {}", repeat);
+                spdlog::debug("Cycle: {}", repeat);
             }
 
             std::for_each(trafficRecords.begin(), trafficRecords.end(),
