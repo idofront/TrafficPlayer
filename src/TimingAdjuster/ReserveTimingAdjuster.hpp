@@ -3,45 +3,20 @@
 
 #include <Queue/BoundedThreadSafeQueue.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
+#include <TimingAdjuster/ReserveTimeRecord.hpp>
 #include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <vector>
 
-class ReserveTimeRecord
-{
-  public:
-    ReserveTimeRecord(std::vector<uint8_t> data, std::chrono::time_point<std::chrono::system_clock> reservationTime)
-        : _Data(data), _ReservationTime(reservationTime)
-    {
-    }
-
-    const std::vector<uint8_t> &Data() const
-    {
-        return _Data;
-    }
-
-    const std::chrono::time_point<std::chrono::system_clock> &ReservationTime() const
-    {
-        return _ReservationTime;
-    }
-
-  private:
-    std::chrono::time_point<std::chrono::system_clock> _ReservationTime;
-
-    /// @brief Data to send
-    std::vector<uint8_t> _Data;
-};
-
 class ReserveTimingAdjuster
 {
   public:
     ReserveTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue);
-
-    void Produce(const TrafficRecord &trafficRecord);
-
-    void operator()();
+    virtual void Produce(const TrafficRecord &trafficRecord);
+    virtual void Run();
+    virtual void TryTerminate();
 
   private:
     std::shared_ptr<ThreadSafeQueue<TrafficRecord>> _Queue;
@@ -54,6 +29,8 @@ class ReserveTimingAdjuster
     /// @brief Thread function to send data
     std::function<void(std::shared_ptr<ThreadSafeQueue<TrafficRecord>>)> MakeTask(
         const ReserveTimeRecord &reserveTimeRecord);
+
+    bool _IsRequestedToTerminate;
 };
 
 #endif

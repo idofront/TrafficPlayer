@@ -2,7 +2,8 @@
 #include <numeric>
 
 Dealer::Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
-    : queue(queue), device_name(device_name), ReportsPtr(std::make_shared<ThreadSafeQueue<DealReport>>())
+    : queue(queue), device_name(device_name), ReportsPtr(std::make_shared<ThreadSafeQueue<DealReport>>()),
+      _IsRequestedToTerminate(false)
 {
     PrepareSocket();
 }
@@ -12,9 +13,9 @@ Dealer::~Dealer()
     close(sockfd);
 }
 
-void Dealer::operator()()
+void Dealer::Run()
 {
-    while (true)
+    while (_IsRequestedToTerminate == false)
     {
         auto timeout = std::chrono::milliseconds(1000);
         auto result = queue->Dequeue(timeout);
@@ -37,6 +38,14 @@ void Dealer::operator()()
             spdlog::debug("Timeout: No value to consume.");
         }
     }
+
+    spdlog::debug("Dealer is terminated.");
+}
+
+void Dealer::TryTerminate()
+{
+    spdlog::debug("Dealer is requested to terminate.");
+    _IsRequestedToTerminate = true;
 }
 
 void Dealer::Send(const std::vector<uint8_t> &data)

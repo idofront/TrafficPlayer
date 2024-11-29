@@ -15,7 +15,8 @@ class DealReporter
   public:
     DealReporter(Dealer &dealer, std::chrono::milliseconds interval);
     virtual ~DealReporter() = default;
-    void operator()();
+    void Run();
+    void TryTerminate();
 
   private:
     Dealer &_Dealer;
@@ -25,6 +26,7 @@ class DealReporter
                             std::chrono::time_point<std::chrono::system_clock> rangeEnd,
                             const UnitConverter &_UnitConverter);
     UnitConverter _UnitConverter;
+    bool _IsRequestedToTerminate;
 };
 
 #endif
