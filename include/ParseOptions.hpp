@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
-#include <spdlog/spdlog.h>
+#include <spdlog/common.h>
 
 enum Mode
 {
@@ -25,7 +25,11 @@ class ParseOptions
         // General options
         app.add_option("--pcap,-p", _PcapFilePath, "Path to the pcap file")->required();
         app.add_option("--interface,-i", _InterfaceName, "Network interface to send packets")->required();
-        app.add_option("--log-level", _LogLevelString, "Log level (trace, debug, info, warn, error, critical)");
+
+        app.add_option("--log-level", _LogLevelString, "Log level")
+            ->check(CLI::IsMember({"trace", "debug", "info", "warn", "error", "critical", "off"}))
+            ->default_val("info");
+
         app.add_option("--report-interval", _ReportIntervalSec, "Interval to show reports in seconds")
             ->default_val(1.0);
         app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat")
@@ -53,6 +57,7 @@ class ParseOptions
         catch (const CLI::ParseError &e)
         {
             app.exit(e);
+            throw std::runtime_error(e.what());
         }
 
         // If help flag was specified, display help
@@ -165,17 +170,10 @@ class ParseOptions
         {
             throw std::runtime_error("Repeat count must be greater than or equal to 0");
         }
-
-        spdlog::info("Interface: {}", _InterfaceName);
-        spdlog::info("Pcap file: {}", _PcapFilePath.string());
-        spdlog::info("Log level: {}", spdlog::level::to_string_view(LogLevel()));
-        spdlog::info("Report interval: {} seconds", _ReportIntervalSec);
-        spdlog::info("Repeat count: {}", _RepeatCount);
     }
 
     void HandleThroughputSubcommand()
     {
-        spdlog::info("Throughput: {} Mbps", _ThroughputMbps);
         if (_ThroughputMbps <= 0)
         {
             throw std::runtime_error("Throughput must be greater than 0");
@@ -183,7 +181,6 @@ class ParseOptions
     }
     void HandleSpeesdScaleSubcommand()
     {
-        spdlog::info("SpeedScale: factor {}", _SpeedScaleFactor);
         if (_SpeedScaleFactor <= 0)
         {
             throw std::runtime_error("Speed scale factor must be greater than 0");
@@ -191,7 +188,6 @@ class ParseOptions
     }
     void HandleDurationSubcommand()
     {
-        spdlog::info("Duration: {} seconds", _DurationTime);
         if (_DurationTime <= 0)
         {
             throw std::runtime_error("Duration time must be greater than 0");
@@ -199,7 +195,6 @@ class ParseOptions
     }
     void HandlePacketsPerSecondSubcommand()
     {
-        spdlog::info("PacketsPerSecond: {} packets per second", _PacketsPerSecond);
         if (_PacketsPerSecond <= 0)
         {
             throw std::runtime_error("Packets per second must be greater than 0");
