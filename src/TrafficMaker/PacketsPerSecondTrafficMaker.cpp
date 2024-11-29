@@ -1,5 +1,4 @@
 #include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
-#include <spdlog/spdlog.h>
 
 namespace TrafficMaker
 {

@@ -2,7 +2,6 @@
 #define TRAFFIC_MAKER__CUSTOM_DURATION_REPLAY_TRAFFIC_MAKER_HPP
 
 #include <TrafficMaker/AbstractTrafficMaker.hpp>
-#include <chrono>
 
 namespace TrafficMaker
 {

@@ -1,7 +1,4 @@
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
-#include <algorithm>
-#include <numeric>
-#include <spdlog/spdlog.h>
 
 namespace TrafficMaker
 {
@@ -18,7 +15,7 @@ double CustomDurationReplayTrafficMaker::CalculateSpeedScaleFactor(const std::ve
     auto maxTimestamp = *std::max_element(timestamps.begin(), timestamps.end());
     auto minTimestamp = *std::min_element(timestamps.begin(), timestamps.end());
     auto durationAsNsec = std::chrono::duration_cast<std::chrono::nanoseconds>(_DurationTime);
-    auto speedScaleFactor = (maxTimestamp - minTimestamp) / durationAsNsec;
+    auto speedScaleFactor = (maxTimestamp - minTimestamp).count() / static_cast<double>(durationAsNsec.count());
 
     return speedScaleFactor;
 }

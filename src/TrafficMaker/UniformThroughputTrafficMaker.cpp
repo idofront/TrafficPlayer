@@ -1,7 +1,6 @@
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
-#include <iostream>
 #include <numeric>
-#include <spdlog/spdlog.h>
+
 namespace TrafficMaker
 {
 UniformTrafficMaker::UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps)
@@ -27,7 +26,7 @@ double UniformTrafficMaker::CalculateSpeedScaleFactor(const std::vector<PcapReco
     auto minTimestamp = *std::min_element(timestamps.begin(), timestamps.end());
     auto actualDuration = maxTimestamp - minTimestamp;
 
-    auto speedScaleFactor = actualDuration / expectedDuration;
+    auto speedScaleFactor = actualDuration.count() / static_cast<double>(expectedDuration.count());
 
     return speedScaleFactor;
 }

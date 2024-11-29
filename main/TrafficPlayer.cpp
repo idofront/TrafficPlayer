@@ -86,12 +86,12 @@ int main(int argc, char *argv[])
                 }
                 if (repeatCount > 1)
                 {
-                    spdlog::debug("Cycle: {}/{}", repeat, repeatCount);
+                    spdlog::trace("Cycle: {}/{}", repeat, repeatCount);
                 }
             }
             else
             {
-                spdlog::debug("Cycle: {}", repeat);
+                spdlog::trace("Cycle: {}", repeat);
             }
 
             std::for_each(trafficRecords.begin(), trafficRecords.end(),

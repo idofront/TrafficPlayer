@@ -1,4 +1,5 @@
 #include <TrafficMaker/AbstractTrafficMaker.hpp>
+#include <spdlog/spdlog.h>
 
 namespace TrafficMaker
 {
@@ -76,6 +77,8 @@ std::vector<TrafficRecord> AbstractTrafficMaker::Make()
 std::vector<TrafficRecord> AbstractTrafficMaker::MakeTrafficRecords(const std::vector<PcapRecord> &pcapRecords,
                                                                     const double speedScaleFactor)
 {
+    spdlog::debug("Speed scale factor: {}", speedScaleFactor);
+
     auto trafficRecords = std::vector<TrafficRecord>();
 
     auto nsecTimestamps = std::vector<std::chrono::nanoseconds>();

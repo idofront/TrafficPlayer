@@ -2,7 +2,6 @@
 #define TRAFFIC_MAKER__SPEED_SCALED_REPLAY_TRAFFIC_MAKER_HPP
 
 #include <TrafficMaker/AbstractTrafficMaker.hpp>
-#include <spdlog/spdlog.h>
 
 namespace TrafficMaker
 {
