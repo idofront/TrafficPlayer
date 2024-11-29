@@ -28,4 +28,15 @@ std::optional<std::shared_ptr<Runnable>> Future::Get(std::chrono::milliseconds t
     // If the thread is not finished after the timeout, return nullopt
     return wait ? std::make_optional(_RunnablePtr) : std::nullopt;
 }
+
+void Future::RegisterCallback(std::function<void()> callback)
+{
+    std::unique_lock<std::mutex> lock(_Mutex);
+    _Callbacks.push_back(callback);
+}
+
+void Future::NotifyCallbacks()
+{
+    std::for_each(_Callbacks.begin(), _Callbacks.end(), [](const std::function<void()> &callback) { callback(); });
+}
 } // namespace Thread

@@ -20,7 +20,7 @@ class ThreadPool
     /// @brief Submit a runnable to the thread pool
     /// @param runnablePtr
     /// @return Future object to control the thread. If no thread is available, return nullopt.
-    virtual std::optional<Future> Submit(std::unique_ptr<Runnable> runnablePtr);
+    virtual std::optional<Future> Submit(std::shared_ptr<Runnable> runnablePtr);
 
     /// @brief Get the number of active threads
     /// @return The number of active threads

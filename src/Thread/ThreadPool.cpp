@@ -13,7 +13,7 @@ ThreadPool::ThreadPool(std::size_t threadCount)
 
 ThreadPool::~ThreadPool() = default;
 
-std::optional<Future> ThreadPool::Submit(std::unique_ptr<Runnable> runnablePtr)
+std::optional<Future> ThreadPool::Submit(std::shared_ptr<Runnable> runnablePtr)
 {
     if (!runnablePtr)
     {
@@ -23,13 +23,6 @@ std::optional<Future> ThreadPool::Submit(std::unique_ptr<Runnable> runnablePtr)
     // Get lock for the thread pool
     auto lock = std::lock_guard(_Mutex);
 
-    // Move the runnable to the local variable
-    auto moveRunnablePtr = std::move(runnablePtr);
-    runnablePtr = nullptr;
-
-    // Convert to shared pointer
-    auto sharedRunnablePtr = std::shared_ptr<Runnable>(moveRunnablePtr.release());
-
     // Find an available thread
     auto availableThreadIter = std::find_if(
         _Threads.begin(), _Threads.end(), [](const std::optional<std::thread> &thread) { return !thread.has_value(); });
@@ -37,10 +30,15 @@ std::optional<Future> ThreadPool::Submit(std::unique_ptr<Runnable> runnablePtr)
     // No available thread
     if (availableThreadIter == _Threads.end())
     {
-        // Move the shared pointer back to the unique pointer
-        runnablePtr.reset(sharedRunnablePtr.get());
         return std::nullopt;
     }
+
+    // Move the runnable to the local variable
+    auto moveRunnablePtr = std::move(runnablePtr);
+    runnablePtr = nullptr;
+
+    // Convert to shared pointer
+    auto sharedRunnablePtr = std::shared_ptr<Runnable>(moveRunnablePtr);
 
     // Assign the runnable to the thread
     auto function = std::bind(&Runnable::Run, sharedRunnablePtr);
