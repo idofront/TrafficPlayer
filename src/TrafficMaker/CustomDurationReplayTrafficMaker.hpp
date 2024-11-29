@@ -1,16 +1,17 @@
 #ifndef TRAFFIC_MAKER__CUSTOM_DURATION_REPLAY_TRAFFIC_MAKER_HPP
 #define TRAFFIC_MAKER__CUSTOM_DURATION_REPLAY_TRAFFIC_MAKER_HPP
 
-#include <TrafficMaker/ITrafficMaker.hpp>
-#include <chrono>
+#include <TrafficMaker/AbstractTrafficMaker.hpp>
 
 namespace TrafficMaker
 {
-class CustomDurationReplayTrafficMaker : public ITrafficMaker
+class CustomDurationReplayTrafficMaker : public AbstractTrafficMaker
 {
   public:
     CustomDurationReplayTrafficMaker(const std::string &pcapFilePath, std::chrono::milliseconds durationTime);
-    std::vector<TrafficRecord> Make() override;
+
+  protected:
+    double CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords) override;
 
   private:
     std::chrono::milliseconds _DurationTime;

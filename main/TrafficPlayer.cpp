@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
         auto queuePtr = std::make_shared<ThreadSafeQueue<TrafficRecord>>();
 
-        auto trafficMakerPtr = std::shared_ptr<TrafficMaker::ITrafficMaker>(nullptr);
+        auto trafficMakerPtr = std::shared_ptr<TrafficMaker::AbstractTrafficMaker>(nullptr);
         if (options.Mode() == Mode::Throughput)
         {
             spdlog::info("Mode: Throughput");
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         {
             spdlog::info("Mode: SpeedScale");
             trafficMakerPtr =
-                std::make_shared<TrafficMaker::SpeedScaleRepalyTrafficMaker>(pcapFile, options.SpeedScaleFactor());
+                std::make_shared<TrafficMaker::SpeedScaleReplayTrafficMaker>(pcapFile, options.SpeedScaleFactor());
         }
         else if (options.Mode() == Mode::Duration)
         {
@@ -86,12 +86,12 @@ int main(int argc, char *argv[])
                 }
                 if (repeatCount > 1)
                 {
-                    spdlog::debug("Cycle: {}/{}", repeat, repeatCount);
+                    spdlog::trace("Cycle: {}/{}", repeat, repeatCount);
                 }
             }
             else
             {
-                spdlog::debug("Cycle: {}", repeat);
+                spdlog::trace("Cycle: {}", repeat);
             }
 
             std::for_each(trafficRecords.begin(), trafficRecords.end(),
