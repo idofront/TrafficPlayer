@@ -22,6 +22,10 @@ class Runnable
     /// @brief Join the thread
     virtual void Join();
 
+    /// @brief Check if the task should continue
+    /// @return If the task should continue, return true.
+    bool IsContinue();
+
   protected:
     /// @brief Sleep for a while.
     /// @param duration The duration to sleep.
@@ -43,7 +47,6 @@ class Runnable
     virtual void PostTask();
 
   private:
-    bool IsContinue();
     bool ShouldBeTerminated();
 
     std::atomic<bool> _IsRequestedToTerminate;

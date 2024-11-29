@@ -13,6 +13,23 @@ class Employer
     {
     }
 
+    virtual ~Employer() = default;
+
+    virtual std::optional<Future> Submit(std::unique_ptr<Runnable> runnablePtr)
+    {
+        return _ThreadPool.Submit(std::move(runnablePtr));
+    }
+
+    virtual std::size_t ActiveThreadCount() const
+    {
+        return _ThreadPool.ActiveThreadCount();
+    }
+
+    virtual std::size_t ThreadCount() const
+    {
+        return _ThreadPool.ThreadCount();
+    }
+
   private:
     ThreadPool _ThreadPool;
 };

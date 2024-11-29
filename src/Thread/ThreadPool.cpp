@@ -47,7 +47,7 @@ std::optional<Future> ThreadPool::Submit(std::unique_ptr<Runnable> runnablePtr)
     *availableThreadIter = std::thread(function);
 
     // Return the future object
-    return Future(sharedRunnablePtr);
+    return std::make_optional<Future>(sharedRunnablePtr);
 }
 
 std::size_t ThreadPool::ActiveThreadCount() const

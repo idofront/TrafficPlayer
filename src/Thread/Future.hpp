@@ -7,40 +7,28 @@
 
 namespace Thread
 {
+/// @brief Future class for managing Runnable tasks
 class Future
 {
   public:
-    Future(std::shared_ptr<Runnable> runnablePtr) : _RunnablePtr(runnablePtr)
-    {
-    }
+    Future(std::shared_ptr<Runnable> runnablePtr);
+
     /// @brief Wait for the thread to finish
     /// @param timeout
     /// @return If the thread is not finished after the timeout, return false.
-    virtual bool Wait(std::chrono::milliseconds timeout)
-    {
-        // TODO: Implement the function
-        return false;
-    }
+    virtual bool Wait(std::chrono::milliseconds timeout);
 
     /// @brief Try to terminate the thread
-    virtual void TryTerminate()
-    {
-        _RunnablePtr->TryTerminate();
-    }
+    virtual void TryTerminate();
 
     /// @brief Get the runnable object.
     /// @return The runnable object if the thread is finished, otherwise return nullopt.
-    virtual std::optional<RunnableSharedPtr> Get(std::chrono::milliseconds timeout)
-    {
-        // Wait for the thread to finish
-        auto wait = Wait(std::chrono::milliseconds(timeout));
-
-        // If the thread is not finished after the timeout, return nullopt
-        return wait ? std::make_optional(_RunnablePtr) : std::nullopt;
-    }
+    virtual std::optional<std::shared_ptr<Runnable>> Get(std::chrono::milliseconds timeout);
 
   private:
     std::shared_ptr<Runnable> _RunnablePtr;
+    std::mutex _Mutex;
+    std::condition_variable _ConditionVar;
 };
 } // namespace Thread
 
