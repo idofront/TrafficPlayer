@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
 
         auto interface = options.InterfaceName();
         auto pcapFile = options.PcapFilePath();
-        auto reportInterval = options.ReportIntervalUsec();
+        auto reportIntervalMsec =
+            std::chrono::milliseconds(static_cast<long long>(options.ReportIntervalNsec().count() / 1e6));
 
         auto queuePtr = std::make_shared<ThreadSafeQueue<TrafficRecord>>();
 
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
         // auto producer = TransmissionTimingAdjuster(queuePtr);
         auto producer = ReserveTimingAdjuster(queuePtr);
         auto dealer = Dealer(queuePtr, interface);
-        auto dealReporter = DealReporter(dealer, reportInterval);
+        auto dealReporter = DealReporter(dealer, reportIntervalMsec);
 
         auto dealerThread = std::thread(dealer);
         auto dealReporterThread = std::thread(dealReporter);
