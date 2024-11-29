@@ -11,59 +11,27 @@ namespace Thread
 class Runnable
 {
   public:
-    Runnable() : _IsRequestedToTerminate(false)
-    {
-    }
+    Runnable();
 
     /// @brief Run the task
-    virtual void Run() final
-    {
-        PreTask();
-        while (IsContinue())
-        {
-            // In the task, it may call Sleep() to sleep for a while.
-            Task();
-        }
-        PostTask();
-    }
+    virtual void Run() final;
 
     /// @brief Try to terminate the task gracefully.
-    virtual void TryTerminate() final
-    {
-        // Change flag to terminate
-        _IsRequestedToTerminate = true;
-
-        // Interrupt the sleep if the thread is sleeping
-        _SleepCondition.notify_all();
-    }
+    virtual void TryTerminate() final;
 
     /// @brief Join the thread
-    virtual void Join()
-    {
-        if (_Thread.joinable())
-        {
-            _Thread.join();
-        }
-    }
+    virtual void Join();
 
   protected:
     /// @brief Sleep for a while.
     /// @param duration The duration to sleep.
     /// @note The sleep can be interrupted if requested to terminate. In the implementation of Task(), this function
     /// should be called instead of std::this_thread::sleep_for().
-    virtual void Sleep(std::chrono::milliseconds duration)
-    {
-        // Sleep for the given duration, but should be interrupted if requested to terminate
-        std::unique_lock<std::mutex> lock(_Mutex);
-        _SleepCondition.wait_for(lock, duration, [this] { return ShouldBeTerminated(); });
-    }
+    virtual void Sleep(std::chrono::milliseconds duration);
 
     /// @brief Pre-task
     /// @note This function is called before the task is executed.
-    virtual void PreTask()
-    {
-        // Do nothing by default
-    }
+    virtual void PreTask();
 
     /// @brief The task to be executed
     /// @note This function should be implemented by the derived class. If the task needs to wait for a while, use
@@ -72,20 +40,11 @@ class Runnable
 
     /// @brief Post-task
     /// @note This function is called after the task is executed.
-    virtual void PostTask()
-    {
-        // Do nothing by default
-    }
+    virtual void PostTask();
 
   private:
-    bool IsContinue()
-    {
-        return !ShouldBeTerminated();
-    }
-    bool ShouldBeTerminated()
-    {
-        return _IsRequestedToTerminate.load();
-    }
+    bool IsContinue();
+    bool ShouldBeTerminated();
 
     std::atomic<bool> _IsRequestedToTerminate;
     std::thread _Thread;
