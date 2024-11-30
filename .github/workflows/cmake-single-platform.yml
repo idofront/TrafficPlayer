@@ -16,6 +16,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Cache CMake dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/local/lib/cmake
+          /usr/local/include
+        key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cmake-
+
     - name: Prepare build environment
       run: |
         sudo apt-get update
