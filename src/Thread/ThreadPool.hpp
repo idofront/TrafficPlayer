@@ -1,7 +1,6 @@
 #ifndef THREAD__THREAD_POOL_HPP
 #define THREAD__THREAD_POOL_HPP
 
-#include <Array/FixedSizeVector.hpp>
 #include <Thread/Future.hpp>
 #include <Thread/Worker.hpp>
 #include <algorithm>
