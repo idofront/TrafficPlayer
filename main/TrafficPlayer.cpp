@@ -64,16 +64,15 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Unknown mode");
         }
 
-        const auto NUM_OF_DEALERS = std::thread::hardware_concurrency();
+        const auto NUM_OF_DEALERS = 1;
         const auto NUM_OF_REPORTERS = 1;
         const auto NUM_OF_PRODUCERS = std::thread::hardware_concurrency();
         const auto NUM_OF_THREADS = NUM_OF_DEALERS + NUM_OF_REPORTERS + NUM_OF_PRODUCERS;
         auto employer = Thread::Employer(NUM_OF_THREADS);
 
-        auto dealer = Dealer(queuePtr, interface);
-        auto reporterFuturePtr = employer.Submit(std::make_shared<DealReporter>(dealer, reportIntervalMsec));
-
-        auto dealerThread = std::thread([&dealer]() { dealer.Run(); });
+        auto dealerPtr = std::make_shared<Dealer>(queuePtr, interface);
+        auto dealerFuturePtr = employer.Submit(dealerPtr);
+        auto reporterFuturePtr = employer.Submit(std::make_shared<DealReporter>(*dealerPtr, reportIntervalMsec));
 
         auto reserveTimeQueuePtr = std::make_shared<BoundedThreadSafeQueue<ReserveTimeRecord>>(1024);
 
@@ -126,11 +125,9 @@ int main(int argc, char *argv[])
         // This implementation is forceful and may cause packet loss.
         try
         {
-            dealer.TryTerminate();
-            dealerThread.join();
-
             employer.TryTerminate();
             employer.Wait();
+            spdlog::info("All threads are terminated.");
         }
         catch (const std::exception &e)
         {
