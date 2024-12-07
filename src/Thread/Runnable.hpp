@@ -1,9 +1,12 @@
 #ifndef THREAD__RUNNABLE_HPP
 #define THREAD__RUNNABLE_HPP
 
+#include <Queue/IThreadSafeQueue.hpp>
 #include <chrono>
 #include <condition_variable>
+#include <functional>
 #include <memory>
+#include <vector>
 
 namespace Thread
 {
@@ -25,6 +28,12 @@ class Runnable
     /// @brief Check if the task should continue
     /// @return If the task should continue, return true.
     bool IsContinue();
+
+    /// @brief Register the callback function to be called when the task is finished.
+    /// @param callback The callback function to be called.
+    virtual void RegisterCallback(std::function<void()> callback) final;
+
+    bool IsTerminated() const;
 
   protected:
     /// @brief Sleep for a while.
@@ -53,9 +62,19 @@ class Runnable
     std::thread _Thread;
     std::mutex _Mutex;
     std::condition_variable _SleepCondition;
+
+    /// @brief Notify the callback functions
+    void NotifyCallbacks();
+
+    /// @brief Callback functions to be called when the task is finished.
+    std::vector<std::function<void()>> _Callbacks;
+
+    bool _IsTerminated;
 };
 
-using RunnableSharedPtr = std::shared_ptr<Runnable>;
+using RunnablePtr = std::shared_ptr<Runnable>;
+using RunnableQueue = IThreadSafeQueue<RunnablePtr>;
+using RunnableQueuePtr = std::shared_ptr<RunnableQueue>;
 } // namespace Thread
 
 #endif

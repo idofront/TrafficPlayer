@@ -1,67 +1,73 @@
+#include <Queue/ThreadSafeQueue.hpp>
 #include <Thread/ThreadPool.hpp>
+#include <spdlog/spdlog.h>
 
 namespace Thread
 {
 ThreadPool::ThreadPool(std::size_t threadCount)
+    : _RunnableQueuePtr(std::make_shared<ThreadSafeQueue<RunnablePtr>>())
 {
-    // Thread pool initialization
     for (std::size_t i = 0; i < threadCount; i++)
     {
-        _Threads.push_back(std::nullopt);
+        auto worker = std::make_shared<Worker>(_RunnableQueuePtr);
+        auto thread = std::thread([worker]() { worker->Run(); });
+        _Workers.push_back(worker);
+        _Threads.push_back(std::move(thread));
     }
 }
 
 ThreadPool::~ThreadPool() = default;
 
-std::optional<Future> ThreadPool::Submit(std::shared_ptr<Runnable> runnablePtr)
+std::shared_ptr<Future> ThreadPool::Submit(std::shared_ptr<Runnable> runnablePtr)
 {
     if (!runnablePtr)
     {
-        return std::nullopt;
+        return nullptr;
     }
 
-    // Get lock for the thread pool
-    auto lock = std::lock_guard(_Mutex);
+    // A future object must be made before enqueuing the task.
+    auto futurePtr = std::make_shared<Future>(runnablePtr);
 
-    // Find an available thread
-    auto availableThreadIter = std::find_if(
-        _Threads.begin(), _Threads.end(), [](const std::optional<std::thread> &thread) { return !thread.has_value(); });
+    _RunnableQueuePtr->Enqueue(runnablePtr);
 
-    // No available thread
-    if (availableThreadIter == _Threads.end())
-    {
-        return std::nullopt;
-    }
-
-    // Move the runnable to the local variable
-    auto moveRunnablePtr = std::move(runnablePtr);
-    runnablePtr = nullptr;
-
-    // Convert to shared pointer
-    auto sharedRunnablePtr = std::shared_ptr<Runnable>(moveRunnablePtr);
-
-    // Assign the runnable to the thread
-    auto function = std::bind(&Runnable::Run, sharedRunnablePtr);
-    *availableThreadIter = std::thread(function);
-
-    // Return the future object
-    return std::make_optional<Future>(sharedRunnablePtr);
+    return futurePtr;
 }
 
 std::size_t ThreadPool::ActiveThreadCount() const
 {
-    // Get lock for the thread pool
-    auto lock = std::lock_guard(_Mutex);
-
-    // Count the number of active threads
-    auto count = std::count_if(_Threads.begin(), _Threads.end(),
-                               [](const std::optional<std::thread> &thread) { return thread.has_value(); });
-
-    return count;
+    return std::count_if(_Workers.begin(), _Workers.end(),
+                         [](const WorkerPtr &worker) { return !worker->IsTerminated(); });
 }
 
 std::size_t ThreadPool::ThreadCount() const
 {
     return _Threads.size();
 }
-}; // namespace Thread
+
+void ThreadPool::TryTerminate()
+{
+    // Get lock for the thread pool
+    auto lock = std::lock_guard(_Mutex);
+
+    // Terminate all threads
+    for (auto &worker : _Workers)
+    {
+        worker->TryTerminate();
+    }
+
+    for (auto &thread : _Threads)
+    {
+        if (thread.joinable())
+        {
+            thread.join();
+        }
+    }
+}
+void ThreadPool::Wait()
+{
+    while (ActiveThreadCount())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+} // namespace Thread

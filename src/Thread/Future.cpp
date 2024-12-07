@@ -4,6 +4,7 @@ namespace Thread
 {
 Future::Future(std::shared_ptr<Runnable> runnablePtr) : _RunnablePtr(runnablePtr)
 {
+    runnablePtr->RegisterCallback([this]() { NotifyCallbacks(); });
 }
 
 bool Future::Wait(std::chrono::milliseconds timeout)

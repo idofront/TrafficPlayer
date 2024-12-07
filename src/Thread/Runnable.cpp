@@ -2,7 +2,7 @@
 
 namespace Thread
 {
-Runnable::Runnable() : _IsRequestedToTerminate(false)
+Runnable::Runnable() : _IsRequestedToTerminate(false), _IsTerminated(false)
 {
 }
 
@@ -15,6 +15,11 @@ void Runnable::Run()
         Task();
     }
     PostTask();
+
+    _IsTerminated = true;
+
+    // Notify the callbacks
+    NotifyCallbacks();
 }
 
 void Runnable::TryTerminate()
@@ -60,4 +65,19 @@ bool Runnable::ShouldBeTerminated()
 {
     return _IsRequestedToTerminate.load();
 }
-}; // namespace Thread
+
+void Runnable::RegisterCallback(std::function<void()> callback)
+{
+    _Callbacks.push_back(callback);
+}
+
+bool Runnable::IsTerminated() const
+{
+    return _IsTerminated;
+}
+
+void Runnable::NotifyCallbacks()
+{
+    std::for_each(_Callbacks.begin(), _Callbacks.end(), [](const std::function<void()> &callback) { callback(); });
+}
+} // namespace Thread
