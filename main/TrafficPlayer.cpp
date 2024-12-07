@@ -9,16 +9,7 @@
 #include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
-#include <TrafficPlayer.hpp>
-#include <TrafficRecord.hpp>
-#include <boost/format.hpp>
-#include <filesystem>
-#include <iostream>
-#include <pcap.h>
 #include <spdlog/spdlog.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 int main(int argc, char *argv[])
 {

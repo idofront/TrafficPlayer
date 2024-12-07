@@ -1,5 +1,8 @@
 #include <Dealer/DealReporter.hpp>
+#include <UnitConverter/SiPrefixConversion.hpp>
+#include <boost/format.hpp>
 #include <numeric>
+#include <spdlog/spdlog.h>
 
 DealReporter::DealReporter(Dealer &dealer, std::chrono::milliseconds interval)
     : _Dealer(dealer), _Interval(interval), _UnitConverter(std::make_unique<SiPrefixConversion>()),

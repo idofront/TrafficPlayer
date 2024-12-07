@@ -4,7 +4,6 @@
 #include <Queue/BoundedThreadSafeQueue.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
 #include <TimingAdjuster/ReserveTimeRecord.hpp>
-#include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>

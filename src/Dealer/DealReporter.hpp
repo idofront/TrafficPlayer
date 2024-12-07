@@ -2,14 +2,8 @@
 #define DEALER__DEAL_REPORTER_HPP
 
 #include <Dealer/Dealer.hpp>
-#include <Queue/ThreadSafeQueue.hpp>
 #include <Thread/Runnable.hpp>
-#include <UnitConverter/BinaryPrefixConversion.hpp>
-#include <UnitConverter/NoConversion.hpp>
-#include <UnitConverter/SiPrefixConversion.hpp>
 #include <UnitConverter/UnitConverter.hpp>
-#include <chrono>
-#include <memory>
 
 class DealReporter : public Thread::Runnable
 {

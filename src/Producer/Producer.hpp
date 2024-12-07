@@ -1,7 +1,6 @@
 #ifndef PRODUCER__PRODUCER_HPP
 #define PRODUCER__PRODUCER_HPP
 
-#include <Queue/IThreadSafeQueue.hpp>
 #include <Thread/Runnable.hpp>
 #include <TimingAdjuster/ReserveTimeRecord.hpp>
 #include <TrafficRecord.hpp>
