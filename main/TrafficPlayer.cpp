@@ -1,6 +1,7 @@
 #include <Dealer/DealReporter.hpp>
 #include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
+#include <Producer/Producer.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
 #include <Thread/Employer.hpp>
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
@@ -74,13 +75,23 @@ int main(int argc, char *argv[])
 
         auto dealerThread = std::thread([&dealer]() { dealer.Run(); });
 
-        auto producer = ReserveTimingAdjuster(queuePtr);
-        auto producerThread = std::thread([&producer]() { producer.Run(); });
+        auto reserveTimeQueuePtr = std::make_shared<BoundedThreadSafeQueue<ReserveTimeRecord>>(1024);
+
+        // Create reserve timing adjuster
+        auto reserveTimingAdjuster = ReserveTimingAdjuster(reserveTimeQueuePtr);
+
+        // Create producers
+        auto producerFuturePtrs = std::vector<std::shared_ptr<Thread::Future>>();
+        for (auto i = 0; i < NUM_OF_PRODUCERS; i++)
+        {
+            auto producerFuturePtr = employer.Submit(std::make_shared<Producer>(reserveTimeQueuePtr, queuePtr));
+            producerFuturePtrs.push_back(producerFuturePtr);
+        }
 
         auto repeatCount = options.RepeatCount();
         uint64_t repeat = 0;
 
-        // Read pcap file
+        // Read pcap file and make traffic records to be reserved and sent later by the producer.
         auto trafficRecords = trafficMakerPtr->Make();
         while (++repeat)
         {
@@ -101,7 +112,9 @@ int main(int argc, char *argv[])
             }
 
             std::for_each(trafficRecords.begin(), trafficRecords.end(),
-                          [&producer](const TrafficRecord &trafficRecord) { producer.Produce(trafficRecord); });
+                          [&reserveTimingAdjuster](const TrafficRecord &trafficRecord) {
+                              reserveTimingAdjuster.Adjust(trafficRecord);
+                          });
         }
 
         do
@@ -113,9 +126,6 @@ int main(int argc, char *argv[])
         // This implementation is forceful and may cause packet loss.
         try
         {
-            producer.TryTerminate();
-            producerThread.join();
-
             dealer.TryTerminate();
             dealerThread.join();
 
