@@ -13,24 +13,12 @@
 class ReserveTimingAdjuster
 {
   public:
-    ReserveTimingAdjuster(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue);
-    virtual void Produce(const TrafficRecord &trafficRecord);
-    virtual void Run();
-    virtual void TryTerminate();
+    ReserveTimingAdjuster(std::shared_ptr<IThreadSafeQueue<ReserveTimeRecord>> queue);
+    void Adjust(const TrafficRecord &trafficRecord);
 
   private:
-    std::shared_ptr<ThreadSafeQueue<TrafficRecord>> _Queue;
-    std::shared_ptr<BoundedThreadSafeQueue<ReserveTimeRecord>> _ReserveQueue;
+    std::shared_ptr<IThreadSafeQueue<ReserveTimeRecord>> _ReserveQueue;
     std::chrono::time_point<std::chrono::system_clock> _LatestReservationTime;
-
-    /// @brief Thread pool to send data
-    std::vector<std::thread> _ThreadPool;
-
-    /// @brief Thread function to send data
-    std::function<void(std::shared_ptr<ThreadSafeQueue<TrafficRecord>>)> MakeTask(
-        const ReserveTimeRecord &reserveTimeRecord);
-
-    bool _IsRequestedToTerminate;
 };
 
 #endif
