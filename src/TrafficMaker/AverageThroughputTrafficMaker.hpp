@@ -5,11 +5,11 @@
 
 namespace TrafficMaker
 {
-class UniformTrafficMaker : public AbstractTrafficMaker
+class AverageThroughputTrafficMaker : public AbstractTrafficMaker
 {
   public:
-    UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps);
-    virtual ~UniformTrafficMaker();
+    AverageThroughputTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps);
+    virtual ~AverageThroughputTrafficMaker();
 
   protected:
     double CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords) override;

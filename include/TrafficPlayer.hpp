@@ -1,10 +1,10 @@
 #ifndef TRAFFIC_PLAYER_HPP
 #define TRAFFIC_PLAYER_HPP
 
+#include <TrafficMaker/AverageThroughputTrafficMaker.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
-#include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
 #include <memory>
 
 static const auto NUM_OF_DEALERS = std::size_t(1);
@@ -17,7 +17,8 @@ inline std::shared_ptr<TrafficMaker::AbstractTrafficMaker> GetTrafficMaker(const
     switch (options.Mode())
     {
     case Mode::Throughput:
-        return std::make_shared<TrafficMaker::UniformTrafficMaker>(options.PcapFilePath(), options.ThroughputMbps());
+        return std::make_shared<TrafficMaker::AverageThroughputTrafficMaker>(options.PcapFilePath(),
+                                                                             options.ThroughputMbps());
     case Mode::SpeedScale:
         return std::make_shared<TrafficMaker::SpeedScaleReplayTrafficMaker>(options.PcapFilePath(),
                                                                             options.SpeedScaleFactor());
@@ -53,8 +54,8 @@ inline void AdjustTrafficRecords(const ParseOptions &options,
     }
 }
 
-inline std::vector<std::shared_ptr<Thread::Future>> CreateProducers(Thread::Employer &employer,
-    std::shared_ptr<BoundedThreadSafeQueue<ReserveTimeRecord>> &reserveTimeQueuePtr,
+inline std::vector<std::shared_ptr<Thread::Future>> CreateProducers(
+    Thread::Employer &employer, std::shared_ptr<BoundedThreadSafeQueue<ReserveTimeRecord>> &reserveTimeQueuePtr,
     std::shared_ptr<ThreadSafeQueue<TrafficRecord>> &queuePtr)
 {
     auto producerFuturePtrs = std::vector<std::shared_ptr<Thread::Future>>();
