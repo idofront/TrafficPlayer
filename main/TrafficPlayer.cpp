@@ -2,6 +2,7 @@
 #include <Dealer/Dealer.hpp>
 #include <ParseOptions.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
+#include <Thread/Employer.hpp>
 #include <TimingAdjuster/ReserveTimingAdjuster.hpp>
 #include <TrafficMaker/CustomDurationReplayTrafficMaker.hpp>
 #include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
@@ -62,11 +63,16 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Unknown mode");
         }
 
+        const auto NUM_OF_DEALERS = std::thread::hardware_concurrency();
+        const auto NUM_OF_REPORTERS = 1;
+        const auto NUM_OF_PRODUCERS = std::thread::hardware_concurrency();
+        const auto NUM_OF_THREADS = NUM_OF_DEALERS + NUM_OF_REPORTERS + NUM_OF_PRODUCERS;
+        auto employer = Thread::Employer(NUM_OF_THREADS);
+
         auto dealer = Dealer(queuePtr, interface);
-        auto dealReporter = DealReporter(dealer, reportIntervalMsec);
+        auto reporterFuturePtr = employer.Submit(std::make_shared<DealReporter>(dealer, reportIntervalMsec));
 
         auto dealerThread = std::thread([&dealer]() { dealer.Run(); });
-        auto dealReporterThread = std::thread([&dealReporter]() { dealReporter.Run(); });
 
         auto producer = ReserveTimingAdjuster(queuePtr);
         auto producerThread = std::thread([&producer]() { producer.Run(); });
@@ -110,11 +116,11 @@ int main(int argc, char *argv[])
             producer.TryTerminate();
             producerThread.join();
 
-            dealReporter.TryTerminate();
-            dealReporterThread.join();
-
             dealer.TryTerminate();
             dealerThread.join();
+
+            employer.TryTerminate();
+            employer.Wait();
         }
         catch (const std::exception &e)
         {

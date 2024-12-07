@@ -31,19 +31,18 @@ void Runnable::TryTerminate()
     _SleepCondition.notify_all();
 }
 
-void Runnable::Join()
-{
-    if (_Thread.joinable())
-    {
-        _Thread.join();
-    }
-}
-
 void Runnable::Sleep(std::chrono::milliseconds duration)
 {
     // Sleep for the given duration, but should be interrupted if requested to terminate
     std::unique_lock<std::mutex> lock(_Mutex);
     _SleepCondition.wait_for(lock, duration, [this] { return ShouldBeTerminated(); });
+}
+
+void Runnable::SleepUntil(std::chrono::time_point<std::chrono::system_clock> timePoint)
+{
+    // Sleep until the given time point, but should be interrupted if requested to terminate
+    std::unique_lock<std::mutex> lock(_Mutex);
+    _SleepCondition.wait_until(lock, timePoint, [this] { return ShouldBeTerminated(); });
 }
 
 void Runnable::PreTask()

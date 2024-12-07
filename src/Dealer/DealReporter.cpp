@@ -7,7 +7,13 @@ DealReporter::DealReporter(Dealer &dealer, std::chrono::milliseconds interval)
 {
 }
 
-void DealReporter::Run()
+void DealReporter::PreTask()
+{
+    spdlog::debug("Deal reporter is started.");
+    auto _ShowReportsReservation = std::chrono::system_clock::now() + _Interval;
+}
+
+void DealReporter::Task()
 {
     if (_Interval.count() <= 0)
     {
@@ -15,43 +21,35 @@ void DealReporter::Run()
         return;
     }
 
-    auto showReportsReservation = std::chrono::system_clock::now() + _Interval;
+    auto rangeStart = std::chrono::system_clock::now();
+    this->SleepUntil(_ShowReportsReservation);
 
-    while (_IsRequestedToTerminate == false)
+    // Reserve the next show time before processing the reports to avoid the delay.
+    _ShowReportsReservation = std::chrono::system_clock::now() + _Interval;
+
+    auto reports = std::vector<DealReport>();
+    while (!_Dealer.ReportsPtr->Empty())
     {
-        auto rangeStart = std::chrono::system_clock::now();
-        std::this_thread::sleep_until(showReportsReservation);
-
-        // Reserve the next show time before processing the reports to avoid the delay.
-        showReportsReservation = std::chrono::system_clock::now() + _Interval;
-
-        auto reports = std::vector<DealReport>();
-        while (!_Dealer.ReportsPtr->Empty())
+        auto timeout = std::chrono::milliseconds(1000);
+        auto report = _Dealer.ReportsPtr->Dequeue(timeout);
+        if (report.has_value())
         {
-            auto timeout = std::chrono::milliseconds(1000);
-            auto report = _Dealer.ReportsPtr->Dequeue(timeout);
-            if (report.has_value())
-            {
-                reports.push_back(report.value());
-            }
-            else
-            {
-                spdlog::warn("Deal reporter timeout. No value to consume, but the dealer's report queue is not empty.");
-                continue;
-            }
+            reports.push_back(report.value());
         }
-        auto rangeEnd = std::chrono::system_clock::now();
-
-        ShowReports(reports, rangeStart, rangeEnd, _UnitConverter);
+        else
+        {
+            spdlog::warn("Deal reporter timeout. No value to consume, but the dealer's report queue is not empty.");
+            continue;
+        }
     }
+    auto rangeEnd = std::chrono::system_clock::now();
 
-    spdlog::debug("Deal reporter is terminated.");
+    ShowReports(reports, rangeStart, rangeEnd, _UnitConverter);
 }
 
-void DealReporter::TryTerminate()
+void DealReporter::PostTask()
 {
-    spdlog::debug("Deal reporter is requested to terminate.");
-    _IsRequestedToTerminate = true;
+    spdlog::debug("Deal reporter is terminated.");
 }
 
 void DealReporter::ShowReports(const std::vector<DealReport> &reports,

@@ -3,6 +3,7 @@
 
 #include <Dealer/Dealer.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
+#include <Thread/Runnable.hpp>
 #include <UnitConverter/BinaryPrefixConversion.hpp>
 #include <UnitConverter/NoConversion.hpp>
 #include <UnitConverter/SiPrefixConversion.hpp>
@@ -10,13 +11,14 @@
 #include <chrono>
 #include <memory>
 
-class DealReporter
+class DealReporter : public Thread::Runnable
 {
   public:
     DealReporter(Dealer &dealer, std::chrono::milliseconds interval);
     virtual ~DealReporter() = default;
-    void Run();
-    void TryTerminate();
+    virtual void PreTask() override;
+    virtual void Task() override;
+    virtual void PostTask() override;
 
   private:
     Dealer &_Dealer;
@@ -27,6 +29,7 @@ class DealReporter
                             const UnitConverter &_UnitConverter);
     UnitConverter _UnitConverter;
     bool _IsRequestedToTerminate;
+    std::chrono::system_clock::time_point _ShowReportsReservation;
 };
 
 #endif
