@@ -22,9 +22,6 @@ class Runnable
     /// @brief Try to terminate the task gracefully.
     virtual void TryTerminate() final;
 
-    /// @brief Join the thread
-    virtual void Join();
-
     /// @brief Check if the task should continue
     /// @return If the task should continue, return true.
     bool IsContinue();
@@ -41,6 +38,12 @@ class Runnable
     /// @note The sleep can be interrupted if requested to terminate. In the implementation of Task(), this function
     /// should be called instead of std::this_thread::sleep_for().
     virtual void Sleep(std::chrono::milliseconds duration);
+
+    /// @brief Sleep until the given time point.
+    /// @param timePoint The time point to sleep until.
+    /// @note The sleep can be interrupted if requested to terminate. In the implementation of Task(), this function
+    /// should be called instead of std::this_thread::sleep_until().
+    virtual void SleepUntil(std::chrono::time_point<std::chrono::system_clock> timePoint);
 
     /// @brief Pre-task
     /// @note This function is called before the task is executed.
@@ -59,7 +62,6 @@ class Runnable
     bool ShouldBeTerminated();
 
     std::atomic<bool> _IsRequestedToTerminate;
-    std::thread _Thread;
     std::mutex _Mutex;
     std::condition_variable _SleepCondition;
 
