@@ -4,18 +4,9 @@
 #include <Dealer/DealReport.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
 #include <Thread/Runnable.hpp>
-#include <TrafficPlayer.hpp>
 #include <TrafficRecord.hpp>
-#include <arpa/inet.h>
-#include <boost/format.hpp>
 #include <linux/if_packet.h>
-#include <memory>
 #include <net/if.h>
-#include <netinet/ether.h>
-#include <spdlog/spdlog.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
 
 class Dealer : public Thread::Runnable
 {

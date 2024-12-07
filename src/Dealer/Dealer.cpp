@@ -1,5 +1,11 @@
 #include <Dealer/Dealer.hpp>
+#include <arpa/inet.h>
+#include <boost/format.hpp>
+#include <netinet/ether.h>
 #include <numeric>
+#include <spdlog/spdlog.h>
+#include <string.h>
+#include <sys/ioctl.h>
 
 Dealer::Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name)
     : queue(queue), device_name(device_name), ReportsPtr(std::make_shared<ThreadSafeQueue<DealReport>>())
@@ -22,8 +28,6 @@ void Dealer::Task()
 
         if (result.has_value())
         {
-            auto str = TrafficPlayer::HexString(result.value().Data());
-            spdlog::trace("Deal: {}", str);
             try
             {
                 Send(result.value().Data());

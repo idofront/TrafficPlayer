@@ -9,16 +9,7 @@
 #include <TrafficMaker/PacketsPerSecondTrafficMaker.hpp>
 #include <TrafficMaker/SpeedScaledReplayTrafficMaker.hpp>
 #include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
-#include <TrafficPlayer.hpp>
-#include <TrafficRecord.hpp>
-#include <boost/format.hpp>
-#include <filesystem>
-#include <iostream>
-#include <pcap.h>
 #include <spdlog/spdlog.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
@@ -66,7 +57,7 @@ int main(int argc, char *argv[])
 
         const auto NUM_OF_DEALERS = 1;
         const auto NUM_OF_REPORTERS = 1;
-        const auto NUM_OF_PRODUCERS = std::thread::hardware_concurrency();
+        const auto NUM_OF_PRODUCERS = 1;
         const auto NUM_OF_THREADS = NUM_OF_DEALERS + NUM_OF_REPORTERS + NUM_OF_PRODUCERS;
         auto employer = Thread::Employer(NUM_OF_THREADS);
 
