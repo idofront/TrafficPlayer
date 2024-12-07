@@ -4,8 +4,7 @@
 
 namespace Thread
 {
-ThreadPool::ThreadPool(std::size_t threadCount)
-    : _RunnableQueuePtr(std::make_shared<ThreadSafeQueue<RunnablePtr>>())
+ThreadPool::ThreadPool(std::size_t threadCount) : _RunnableQueuePtr(std::make_shared<ThreadSafeQueue<RunnablePtr>>())
 {
     for (std::size_t i = 0; i < threadCount; i++)
     {
@@ -27,6 +26,12 @@ std::shared_ptr<Future> ThreadPool::Submit(std::shared_ptr<Runnable> runnablePtr
 
     // A future object must be made before enqueuing the task.
     auto futurePtr = std::make_shared<Future>(runnablePtr);
+    _Futures.push_back(futurePtr);
+    futurePtr->RegisterCallback([this, futurePtr]() {
+        auto futuresLock = std::lock_guard(_FuturesMutex);
+        _Futures.erase(std::remove(_Futures.begin(), _Futures.end(), futurePtr), _Futures.end());
+        _TerminatedCondition.notify_all();
+    });
 
     _RunnableQueuePtr->Enqueue(runnablePtr);
 
@@ -47,14 +52,27 @@ std::size_t ThreadPool::ThreadCount() const
 void ThreadPool::TryTerminate()
 {
     // Get lock for the thread pool
+    {
+        auto futuresLock = std::lock_guard(_FuturesMutex);
+        std::for_each(_Futures.begin(), _Futures.end(),
+                      [](const std::shared_ptr<Future> &future) { future->TryTerminate(); });
+    }
+
+    // Wait for all threads to finish
+    {
+        auto lock = std::unique_lock(_Mutex);
+        _TerminatedCondition.wait(lock, [this] { return _Futures.empty(); });
+    }
+
     auto lock = std::lock_guard(_Mutex);
 
-    // Terminate all threads
+    // Terminate all workers
     for (auto &worker : _Workers)
     {
         worker->TryTerminate();
     }
 
+    // Terminate all threads
     for (auto &thread : _Threads)
     {
         if (thread.joinable())

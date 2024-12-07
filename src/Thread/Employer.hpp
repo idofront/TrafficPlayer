@@ -11,6 +11,7 @@ class Employer : public ThreadPool
 {
   public:
     Employer();
+    Employer(std::size_t threadCount);
 };
 } // namespace Thread
 
