@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
         const auto NUM_OF_DEALERS = 1;
         const auto NUM_OF_REPORTERS = 1;
-        const auto NUM_OF_PRODUCERS = std::thread::hardware_concurrency();
+        const auto NUM_OF_PRODUCERS = 1;
         const auto NUM_OF_THREADS = NUM_OF_DEALERS + NUM_OF_REPORTERS + NUM_OF_PRODUCERS;
         auto employer = Thread::Employer(NUM_OF_THREADS);
 
