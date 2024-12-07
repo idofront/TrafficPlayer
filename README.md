@@ -11,6 +11,7 @@ TrafficPlayer is an application designed to replay network traffic based on diff
 ## Requirements
 
 - **C++ Compiler**: Requires a C++17 or newer compatible compiler.
+- **CPU**: It is recommended to use a CPU with at least 3 threads for optimal performance.
 - **CMake**: Used for managing the build process.
 
 ## Installation
