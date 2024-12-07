@@ -1,12 +1,12 @@
 # TrafficPlayer
 
-TrafficPlayer is an application designed to replay network traffic based on different strategies, providing flexibility in testing and analyzing network behaviors. This project supports various replay modes, including custom duration, speed scaling, and uniform throughput.
+TrafficPlayer is an application designed to replay network traffic based on different strategies, providing flexibility in testing and analyzing network behaviors. This project supports various replay modes, including custom duration, speed scaling, and average throughput.
 
 ## Features
 
 - **CustomDuration Replay**: Replay traffic for a specified duration, giving users control over timing.
 - **SpeedScaled Replay**: Adjust the replay speed of captured traffic, scaling it up or down as needed.
-- **UniformThroughput Replay**: Replay traffic with a constant throughput, maintaining uniform data rates.
+- **AverageThroughput Replay**: Replay traffic with an average throughput, maintaining consistent data rates over time.
 
 ## Requirements
 

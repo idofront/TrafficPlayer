@@ -1,18 +1,19 @@
-#include <TrafficMaker/UniformThroughputTrafficMaker.hpp>
+#include <TrafficMaker/AverageThroughputTrafficMaker.hpp>
 #include <numeric>
 
 namespace TrafficMaker
 {
-UniformTrafficMaker::UniformTrafficMaker(const std::filesystem::path &path, double expectedThroughputMbps)
+AverageThroughputTrafficMaker::AverageThroughputTrafficMaker(const std::filesystem::path &path,
+                                                             double expectedThroughputMbps)
     : AbstractTrafficMaker(path), _expectedThroughputMbps(expectedThroughputMbps)
 {
 }
 
-UniformTrafficMaker::~UniformTrafficMaker()
+AverageThroughputTrafficMaker::~AverageThroughputTrafficMaker()
 {
 }
 
-double UniformTrafficMaker::CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords)
+double AverageThroughputTrafficMaker::CalculateSpeedScaleFactor(const std::vector<PcapRecord> &pcapRecords)
 {
     auto expectedThroughputMbps = _expectedThroughputMbps;
 
