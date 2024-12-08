@@ -12,10 +12,14 @@ class Dealer : public Thread::Runnable
 {
   public:
     Dealer(std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue, const std::string &device_name);
+
     virtual ~Dealer();
 
     virtual void Task();
+
     std::shared_ptr<ThreadSafeQueue<DealReport>> ReportsPtr;
+
+    void RegisterDealedCallback(std::function<void(DealReportPtr)> callback);
 
   private:
     std::shared_ptr<ThreadSafeQueue<TrafficRecord>> queue;
@@ -24,8 +28,10 @@ class Dealer : public Thread::Runnable
     struct ifreq if_idx;
     struct sockaddr_ll device;
     const std::string device_name;
+    std::vector<std::function<void(DealReportPtr)>> _DealedCallbacks;
+    void NotifyDealedCallbacks(DealReportPtr &report);
 
-    void Send(const std::vector<uint8_t> &data);
+    std::shared_ptr<DealReport> Send(const std::vector<uint8_t> &data);
     void PrepareSocket();
 };
 
