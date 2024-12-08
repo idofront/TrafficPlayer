@@ -1,5 +1,6 @@
-#include <Dealer/DealReporter.hpp>
 #include <Dealer/Dealer.hpp>
+#include <Dealer/DealReporter.hpp>
+#include <Dealer/RawSocketDealStrategy.hpp>
 #include <ParseOptions.hpp>
 #include <Producer/Producer.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
@@ -24,6 +25,10 @@ int main(int argc, char *argv[])
 
         auto employer = Thread::Employer(NUM_OF_THREADS);
         auto dealerPtr = std::make_shared<Dealer>(queuePtr, interface);
+        if (!options.DryRun())
+        {
+            dealerPtr->DealStrategy(std::make_shared<RawSocketDealStrategy>(interface));
+        }
         auto dealerFuturePtr = employer.Submit(dealerPtr);
         auto reporterPtr = std::make_shared<DealReporter>(reportIntervalMsec);
         reporterPtr->RegisterDealer(dealerPtr);

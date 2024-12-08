@@ -23,17 +23,19 @@ class ParseOptions
         CLI::App app{"TrafficPlayer"};
 
         // General options
-        app.add_option("--pcap,-p", _PcapFilePath, "Path to the pcap file")->required();
-        app.add_option("--interface,-i", _InterfaceName, "Network interface to send packets")->required();
-
+        app.add_option("--pcap,-p", _PcapFilePath, "Path to the pcap file.")->required();
+        app.add_option("--interface,-i", _InterfaceName, "Network interface to send packets.")->default_val("");
         app.add_option("--log-level", _LogLevelString, "Log level")
             ->check(CLI::IsMember({"trace", "debug", "info", "warn", "error", "critical", "off"}))
             ->default_val("info");
-
-        app.add_option("--report-interval", _ReportIntervalSec, "Interval to show reports in seconds")
+        app.add_option("--report-interval", _ReportIntervalSec, "Interval to show reports in seconds.")
             ->default_val(1.0);
-        app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat")
+        app.add_option("--repeat", _RepeatCount, "Number of times to repeat the traffic. 0 means infinite repeat.")
             ->default_val(1);
+        app.add_flag("--dry-run", _DryRun,
+                     "Dry run mode: Do not send packets, just show reports. No network interface "
+                     "is required. No root permission is required.")
+            ->default_val(false);
 
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
@@ -152,6 +154,12 @@ class ParseOptions
         return _RepeatCount;
     }
 
+    /// @brief Dry run mode
+    const bool DryRun() const
+    {
+        return _DryRun;
+    }
+
   private:
     ::Mode _Mode;
     std::string _InterfaceName;
@@ -163,12 +171,18 @@ class ParseOptions
     std::string _LogLevelString;
     double _ReportIntervalSec;
     int64_t _RepeatCount;
+    bool _DryRun;
 
     void HandleGeneralOptions()
     {
         if (_RepeatCount < 0)
         {
             throw std::runtime_error("Repeat count must be greater than or equal to 0");
+        }
+
+        if (_InterfaceName.empty() && !_DryRun)
+        {
+            throw std::runtime_error("--interface must be specified unless dry run mode is enabled.");
         }
     }
 
