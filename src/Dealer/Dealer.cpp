@@ -28,14 +28,11 @@ void Dealer::Task()
 
         if (result.has_value())
         {
-            try
-            {
-                Send(result.value().Data());
-            }
-            catch (const std::exception &e)
-            {
-                spdlog::error(e.what());
-            }
+            auto report = Send(result.value().Data());
+
+            // Notify callbacks
+            // TODO Callbacks should be executed in another thread because we don't know how long it will take
+            NotifyDealedCallbacks(report);
         }
         else
         {
@@ -46,19 +43,33 @@ void Dealer::Task()
     spdlog::debug("Dealer is terminated.");
 }
 
-void Dealer::Send(const std::vector<uint8_t> &data)
+void Dealer::RegisterDealedCallback(std::function<void(DealReportPtr)> callback)
+{
+    _DealedCallbacks.push_back(callback);
+}
+
+void Dealer::NotifyDealedCallbacks(DealReportPtr &report)
+{
+    std::for_each(_DealedCallbacks.begin(), _DealedCallbacks.end(),
+                  [&report](const std::function<void(DealReportPtr)> &callback) { callback(report); });
+}
+
+std::shared_ptr<DealReport> Dealer::Send(const std::vector<uint8_t> &data)
 {
     auto ready_time = std::chrono::system_clock::now();
-    // データ送信
+    auto sent_time = std::chrono::system_clock::from_time_t(0);
+    // Send data
     if (sendto(sockfd, data.data(), data.size(), 0, (struct sockaddr *)&device, sizeof(device)) < 0)
     {
         auto error = strerror(errno);
         auto fmt = boost::format("Failed to send data: %1%");
-        throw std::runtime_error(boost::str(fmt % error));
+        spdlog::warn(boost::str(fmt % error));
     }
-    auto sent_time = std::chrono::system_clock::now();
-    auto report = DealReport(ready_time, sent_time, data.size());
-    ReportsPtr->Enqueue(report);
+    else
+    {
+        sent_time = std::chrono::system_clock::now();
+    }
+    return std::make_shared<DealReport>(ready_time, std::chrono::system_clock::from_time_t(0), data.size());
 }
 
 void Dealer::PrepareSocket()

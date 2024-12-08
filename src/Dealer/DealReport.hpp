@@ -2,6 +2,7 @@
 #define DEALER__DEAL_REPORT_HPP
 
 #include <chrono>
+#include <memory>
 
 class DealReport
 {
@@ -18,5 +19,7 @@ class DealReport
     std::chrono::time_point<std::chrono::system_clock> _SentTime;
     std::size_t _PacketSize;
 };
+
+using DealReportPtr = std::shared_ptr<DealReport>;
 
 #endif

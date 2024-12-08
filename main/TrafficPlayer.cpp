@@ -25,7 +25,9 @@ int main(int argc, char *argv[])
         auto employer = Thread::Employer(NUM_OF_THREADS);
         auto dealerPtr = std::make_shared<Dealer>(queuePtr, interface);
         auto dealerFuturePtr = employer.Submit(dealerPtr);
-        auto reporterFuturePtr = employer.Submit(std::make_shared<DealReporter>(*dealerPtr, reportIntervalMsec));
+        auto reporterPtr = std::make_shared<DealReporter>(reportIntervalMsec);
+        reporterPtr->RegisterDealer(dealerPtr);
+        auto reporterFuturePtr = employer.Submit(reporterPtr);
 
         // Create producers
         auto producerFuturePtrs = CreateProducers(employer, reserveTimeQueuePtr, queuePtr);
