@@ -82,16 +82,6 @@ void Dealer::PrepareSocket()
         throw std::runtime_error(msg);
     }
 
-    // Set promiscuous mode
-    struct packet_mreq mreq;
-    memset(&mreq, 0, sizeof(mreq));
-    mreq.mr_ifindex = if_idx.ifr_ifindex;
-    mreq.mr_type = PACKET_MR_PROMISC;
-    if (setsockopt(sockfd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
-    {
-        throw std::runtime_error("Failed to set socket promiscuous mode");
-    }
-
     // Set device
     memset(&device, 0, sizeof(device));
     device.sll_family = AF_PACKET;
