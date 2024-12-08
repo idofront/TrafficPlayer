@@ -81,7 +81,9 @@
         "regex": "cpp",
         "fstream": "cpp",
         "forward_list": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp"
     },
     "testMate.cpp.test.executables": "build/test/*",
     "editor.formatOnSave": true,
