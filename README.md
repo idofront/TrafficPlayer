@@ -48,6 +48,7 @@ Options:
 - `--report-interval <seconds>`: Interval to show reports in seconds (default: 1).
 - `--repeat <times>`: Number of times to repeat the traffic. 0 means infinite repeat (default: 1).
 - `--dry-run`: Do not send packets, just show reports. No network interface is required. No root permission is required.
+- `--hex`: Show packets in hex format.
 
 Subcommands:
 

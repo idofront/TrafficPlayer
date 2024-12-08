@@ -36,6 +36,7 @@ class ParseOptions
                      "Dry run mode: Do not send packets, just show reports. No network interface "
                      "is required. No root permission is required.")
             ->default_val(false);
+        app.add_flag("--hex", _HexView, "Show packets in hex format.")->default_val(false);
 
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
@@ -160,6 +161,12 @@ class ParseOptions
         return _DryRun;
     }
 
+    /// @brief Hex view mode
+    const bool HexView() const
+    {
+        return _HexView;
+    }
+
   private:
     ::Mode _Mode;
     std::string _InterfaceName;
@@ -172,6 +179,7 @@ class ParseOptions
     double _ReportIntervalSec;
     int64_t _RepeatCount;
     bool _DryRun;
+    bool _HexView;
 
     void HandleGeneralOptions()
     {

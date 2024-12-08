@@ -34,7 +34,7 @@ DealReportPtr RawSocketDealStrategy::Deal(const std::vector<uint8_t> &data)
     {
         sent_time = std::chrono::system_clock::now();
     }
-    return std::make_shared<DealReport>(ready_time, sent_time, data.size());
+    return std::make_shared<DealReport>(ready_time, sent_time, data);
 }
 
 void RawSocketDealStrategy::PrepareSocket()
