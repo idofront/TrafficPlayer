@@ -47,6 +47,7 @@ Options:
 - `--log-level <level>`: Log level (trace, debug, info, warn, error, critical, off).
 - `--report-interval <seconds>`: Interval to show reports in seconds (default: 1).
 - `--repeat <times>`: Number of times to repeat the traffic. 0 means infinite repeat (default: 1).
+- `--dry-run`: Do not send packets, just show reports. No network interface is required. No root permission is required.
 
 Subcommands:
 
