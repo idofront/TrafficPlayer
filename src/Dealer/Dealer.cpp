@@ -1,5 +1,5 @@
 #include <Dealer/Dealer.hpp>
-#include <Dealer/DryDealStrategy.hpp>
+#include <Dealer/Strategy/DryDealStrategy.hpp>
 #include <numeric>
 #include <spdlog/spdlog.h>
 
