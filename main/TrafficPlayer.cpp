@@ -2,7 +2,7 @@
 #include <Dealer/DealReportHexViewer.hpp>
 #include <Dealer/DealReporter.hpp>
 #include <Dealer/Dealer.hpp>
-#include <Dealer/RawSocketDealStrategy.hpp>
+#include <Dealer/Strategy/RawSocketDealStrategy.hpp>
 #include <ParseOptions.hpp>
 #include <Producer/Producer.hpp>
 #include <Queue/ThreadSafeQueue.hpp>

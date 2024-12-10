@@ -1,4 +1,4 @@
-#include <Dealer/RawSocketDealStrategy.hpp>
+#include <Dealer/Strategy/RawSocketDealStrategy.hpp>
 #include <boost/format.hpp>
 
 RawSocketDealStrategy::RawSocketDealStrategy(const std::string &device_name) : device_name(device_name)

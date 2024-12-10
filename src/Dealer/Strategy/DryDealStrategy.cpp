@@ -1,4 +1,4 @@
-#include <Dealer/DryDealStrategy.hpp>
+#include <Dealer/Strategy/DryDealStrategy.hpp>
 
 DealReportPtr DryDealStrategy::Deal(const std::vector<uint8_t> &data)
 {
