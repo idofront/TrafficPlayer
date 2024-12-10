@@ -49,6 +49,7 @@ Options:
 - `--repeat <times>`: Number of times to repeat the traffic. 0 means infinite repeat (default: 1).
 - `--dry-run`: Do not send packets, just show reports. No network interface is required. No root permission is required.
 - `--hex`: Show packets in hex format.
+- `--ascii`: Show packets in ascii characters.
 
 Subcommands:
 

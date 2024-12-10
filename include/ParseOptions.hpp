@@ -37,6 +37,7 @@ class ParseOptions
                      "is required. No root permission is required.")
             ->default_val(false);
         app.add_flag("--hex", _HexView, "Show packets in hex format.")->default_val(false);
+        app.add_flag("--ascii", _AsciiView, "Show packets in ascii characters.")->default_val(false);
 
         // Subcommands for different modes
         auto throughput = app.add_subcommand("throughput", "Throughput mode: Replay at a specified throughput");
@@ -167,6 +168,12 @@ class ParseOptions
         return _HexView;
     }
 
+    /// @brief Ascii view mode
+    const bool AsciiView() const
+    {
+        return _AsciiView;
+    }
+
   private:
     ::Mode _Mode;
     std::string _InterfaceName;
@@ -180,6 +187,7 @@ class ParseOptions
     int64_t _RepeatCount;
     bool _DryRun;
     bool _HexView;
+    bool _AsciiView;
 
     void HandleGeneralOptions()
     {

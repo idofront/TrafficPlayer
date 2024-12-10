@@ -1,3 +1,4 @@
+#include <Dealer/DealReportAsciiViewer.hpp>
 #include <Dealer/DealReportHexViewer.hpp>
 #include <Dealer/DealReporter.hpp>
 #include <Dealer/Dealer.hpp>
@@ -43,6 +44,12 @@ int main(int argc, char *argv[])
         if (options.HexView())
         {
             dealReportHexViewerPtr->RegisterDealer(dealerPtr);
+        }
+        // Register an ascii viewer if needed
+        auto dealReportAsciiViewerPtr = std::make_shared<DealReportAsciiViewer>();
+        if (options.AsciiView())
+        {
+            dealReportAsciiViewerPtr->RegisterDealer(dealerPtr);
         }
         auto reporterFuturePtr = employer.Submit(reporterPtr);
 
