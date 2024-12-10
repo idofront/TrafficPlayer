@@ -1,7 +1,8 @@
-#ifndef DEAL__RAW_SOCKET_DEAL_STRATEGY_HPP
-#define DEAL__RAW_SOCKET_DEAL_STRATEGY_HPP
+#ifndef DEALER__STRATEGY__RAW_SOCKET_DEAL_STRATEGY_HPP
+#define DEALER__STRATEGY__RAW_SOCKET_DEAL_STRATEGY_HPP
 
-#include <Dealer/IDealStrategy.hpp>
+#include <Dealer/Strategy/IDealStrategy.hpp>
+#include <Dealer/Strategy/Socket.hpp>
 #include <arpa/inet.h>
 #include <linux/if_packet.h>
 #include <net/if.h>
@@ -16,12 +17,9 @@ class RawSocketDealStrategy : public IDealStrategy
     RawSocketDealStrategy(const std::string &device_name);
     virtual ~RawSocketDealStrategy();
     virtual DealReportPtr Deal(const std::vector<uint8_t> &data) override;
-    void PrepareSocket();
 
   private:
-    int sockfd;
-    struct ifreq if_idx;
-    struct sockaddr_ll device;
+    Socket _Socket;
     const std::string device_name;
 };
 

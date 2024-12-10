@@ -2,7 +2,7 @@
 #define DEALER_HPP
 
 #include <Dealer/DealReport.hpp>
-#include <Dealer/IDealStrategy.hpp>
+#include <Dealer/Strategy/IDealStrategy.hpp>
 #include <Queue/ThreadSafeQueue.hpp>
 #include <Thread/Runnable.hpp>
 #include <TrafficRecord.hpp>
