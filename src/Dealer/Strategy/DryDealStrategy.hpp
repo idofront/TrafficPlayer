@@ -1,7 +1,7 @@
-#ifndef DEAL__DRY_DEAL_STRATEGY_HPP
-#define DEAL__DRY_DEAL_STRATEGY_HPP
+#ifndef DEALER__STRATEGY__DRY_DEAL_STRATEGY_HPP
+#define DEALER__STRATEGY__DRY_DEAL_STRATEGY_HPP
 
-#include <Dealer/IDealStrategy.hpp>
+#include <Dealer/Strategy/IDealStrategy.hpp>
 #include <spdlog/spdlog.h>
 
 class DryDealStrategy : public IDealStrategy
